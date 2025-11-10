@@ -14,12 +14,16 @@ tmp="$(mktemp)"
 case "$mode" in
   bypass)
     # Remove any enterprise policy-like block (if present at user level)
-    jq 'del(.permissions.disableBypassPermissionsMode) | .permissions.defaultMode = "bypassPermissions"'       "$CFG" > "$tmp" && mv "$tmp" "$CFG"
+    jq 'del(.permissions.disableBypassPermissionsMode)
+        | .permissions.defaultMode = "bypassPermissions"' \
+      "$CFG" > "$tmp" && mv "$tmp" "$CFG"
     echo "Switched to BYPASS mode."
     ;;
   safe)
     # Safer default: accept edits and explicitly disable bypass
-    jq '.permissions.defaultMode = "acceptEdits" | .permissions.disableBypassPermissionsMode = "disable"'       "$CFG" > "$tmp" && mv "$tmp" "$CFG"
+    jq '.permissions.defaultMode = "acceptEdits"
+        | .permissions.disableBypassPermissionsMode = "disable"' \
+      "$CFG" > "$tmp" && mv "$tmp" "$CFG"
     echo "Switched to SAFE mode (acceptEdits + disable bypass)."
     ;;
   custom)

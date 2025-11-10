@@ -36,7 +36,10 @@ JSON
 
 # ---- Login method preset ----
 if [[ -n "${CLAUDE_ORG_UUID:-}" ]]; then
-  LOGIN_CFG=$(jq -n --arg m "$LOGIN_METHOD" --arg org "$CLAUDE_ORG_UUID" '{forceLoginMethod:$m, forceLoginOrgUUID:$org}')
+  LOGIN_CFG=$(jq -n \
+    --arg m "$LOGIN_METHOD" \
+    --arg org "$CLAUDE_ORG_UUID" \
+    '{forceLoginMethod:$m, forceLoginOrgUUID:$org}')
 else
   LOGIN_CFG=$(jq -n --arg m "$LOGIN_METHOD" '{forceLoginMethod:$m}')
 fi
@@ -56,7 +59,8 @@ fi
 
 # ---- Optional: sandbox ----
 if [[ "${ENABLE_CLAUDE_SANDBOX:-}" = "1" ]]; then
-  SANDBOX_CFG=$(jq -n '{sandbox: { allowUnsandboxedCommands: false, enableWeakerNestedSandbox: true }}')
+  SANDBOX_CFG=$(jq -n \
+    '{sandbox: {allowUnsandboxedCommands: false, enableWeakerNestedSandbox: true}}')
 else
   SANDBOX_CFG='{}'
 fi
@@ -64,10 +68,21 @@ fi
 # ---- Merge settings (existing -> base -> login -> apiHelper -> sandbox) ----
 if [[ -f "$CFG" ]]; then
   tmp="$(mktemp)"
-  jq -s '.[0] * .[1] * .[2] * .[3] * .[4]'     "$CFG"     <(printf '%s' "$BASE_CFG")     <(printf '%s' "$LOGIN_CFG")     <(printf '%s' "$API_HELPER_CFG")     <(printf '%s' "$SANDBOX_CFG") > "$tmp" && mv "$tmp" "$CFG"
+  jq -s '.[0] * .[1] * .[2] * .[3] * .[4]' \
+    "$CFG" \
+    <(printf '%s' "$BASE_CFG") \
+    <(printf '%s' "$LOGIN_CFG") \
+    <(printf '%s' "$API_HELPER_CFG") \
+    <(printf '%s' "$SANDBOX_CFG") \
+    > "$tmp" && mv "$tmp" "$CFG"
 else
   tmp="$(mktemp)"
-  jq -s '.[0] * .[1] * .[2] * .[3]'     <(printf '%s' "$BASE_CFG")     <(printf '%s' "$LOGIN_CFG")     <(printf '%s' "$API_HELPER_CFG")     <(printf '%s' "$SANDBOX_CFG") > "$tmp" && mv "$tmp" "$CFG"
+  jq -s '.[0] * .[1] * .[2] * .[3]' \
+    <(printf '%s' "$BASE_CFG") \
+    <(printf '%s' "$LOGIN_CFG") \
+    <(printf '%s' "$API_HELPER_CFG") \
+    <(printf '%s' "$SANDBOX_CFG") \
+    > "$tmp" && mv "$tmp" "$CFG"
 fi
 
 # ---- Seeds ----
@@ -98,7 +113,9 @@ SK
 # ---- TTL passthrough ----
 if [[ -n "${CLAUDE_CODE_API_KEY_HELPER_TTL_MS:-}" ]]; then
   tmp="$(mktemp)"
-  jq '.env = ( .env // {} ) + {"CLAUDE_CODE_API_KEY_HELPER_TTL_MS": env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS }'     "$CFG" > "$tmp" && mv "$tmp" "$CFG"
+  jq '.env = (.env // {})
+      + {"CLAUDE_CODE_API_KEY_HELPER_TTL_MS": env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS}' \
+    "$CFG" > "$tmp" && mv "$tmp" "$CFG"
 fi
 
 echo "✔ Claude Code installed. BYPASS mode is the default."
