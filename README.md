@@ -1,4 +1,4 @@
-# Universal Dev Container (v2-bypass) — **Bypass Mode Default**
+# Universal Dev Container — **Bypass Mode Default**
 
 > 这一版默认启用 **bypassPermissions**（绕过权限确认）。仅在**可信仓库**和**隔离环境**使用（本模板自带默认拒绝出网的白名单防火墙）。
 
@@ -48,7 +48,7 @@ claude /help
 ```bash
 export PROJECT_DIR=/abs/path/to/project
 export PROJECT_NAME=$(basename "$PROJECT_DIR")
-code /abs/path/to/universal-devcontainer-v2-bypass
+code /abs/path/to/universal-devcontainer
 ```
 
 ### 可选变量

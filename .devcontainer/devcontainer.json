@@ -1,5 +1,5 @@
 {
-  "name": "universal-dev-with-claude (v2-bypass)",
+  "name": "universal-dev-with-claude",
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
