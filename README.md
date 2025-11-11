@@ -7,35 +7,28 @@
 - VS Code ≥ 1.105，扩展 `ms-vscode-remote.remote-containers` ≥ 0.427
 - Docker Desktop（或兼容 Docker 引擎）已启动，支持 `host.docker.internal`
 - Git 可用（用于脚本拉取仓库）
+- 推荐安装 Dev Containers CLI：`npm i -g @devcontainers/cli`
 - 在受限网络或代理环境下，建议先阅读 `docs/PROXY_SETUP.md`
 
 ## 快速开始
 
-推荐用法（自动挂载任意项目目录）：
+推荐用法（一键用本配置打开任意项目）：
 ```bash
 # 选择登录方式（console 推荐）
 export CLAUDE_LOGIN_METHOD=console
 export ANTHROPIC_API_KEY=sk-ant-...
 
-# 在要作为项目的目录里运行，或指定路径/仓库
-scripts/open-here.sh                     # 用当前目录作为项目
+# 在要作为项目的目录里运行，或指定路径/仓库（推荐已安装 devcontainer CLI）
+scripts/open-here.sh                      # 用当前目录作为项目
 # 或
 scripts/open-project.sh /abs/path/to/project
 # 或
 scripts/open-project.sh https://github.com/owner/repo.git
 
-# VS Code 打开后执行：Dev Containers: Reopen in Container / Rebuild Container
+# 正常情况下无需 Rebuild；脚本直接调用 devcontainer open
 ```
 
-脚本会生成本地覆盖文件 `.devcontainer/devcontainer.local.json`，把所选项目目录挂载到容器内 `/workspaces/<项目名>`，无需手动设置环境变量。
-
-切换项目或恢复默认挂载：
-```bash
-# 切换：再次运行 open-here.sh / open-project.sh 覆盖本地配置
-
-# 恢复默认挂载（删除本地覆盖），然后在 VS Code 中 Rebuild Container
-scripts/clear-override.sh
-```
+说明：若未安装 Dev Containers CLI，脚本会回退到写入 `.devcontainer/devcontainer.local.json` 并提示你手动执行 “Reopen in Container”。
 
 进入容器后：
 ```bash
@@ -57,12 +50,7 @@ claude /help
 | `CLAUDE_LOGIN_METHOD` | 登录方式：`console`/`claudeai`/`apiKey` | `console` |
 | `ANTHROPIC_API_KEY` | Anthropic API Key（用 apiKey 方式时） | `sk-ant-xxx...` |
 
-注：如不使用上述脚本，也可以通过环境变量手动指定项目挂载（不推荐，易错）：
-```bash
-export PROJECT_DIR=/abs/path/to/project
-export PROJECT_NAME=$(basename "$PROJECT_DIR")
-code /abs/path/to/universal-devcontainer
-```
+注：也可用 VS Code 内置流程（无需脚本）：命令面板执行“Dev Containers: Open Folder in Container...”，选择“From a predefined container configuration”，把本仓库作为“配置文件夹”，你的项目目录作为“工作区文件夹”。
 
 ### 可选变量
 | 变量 | 说明 | 示例 |
@@ -159,14 +147,14 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 - `.devcontainer/` — 容器定义
   - `Dockerfile` — 基础镜像和系统包
   - `devcontainer.json` — VS Code Dev Container 配置
-  - `devcontainer.local.json` — 本地覆盖（由脚本生成，绑定项目目录；已加入 .gitignore）
+  - `devcontainer.local.json` — 回退方案的本地覆盖（仅当未安装 CLI 时由脚本生成；已加入 .gitignore）
   - `bootstrap-claude.sh` — Claude Code 安装和配置（postCreate）
   - `init-firewall.sh` — 防火墙初始化（postStart）
   - `setup-proxy.sh` — 代理配置脚本（可选执行）
 - `scripts/` — 辅助脚本
-  - `open-here.sh` — 在当前目录打开 Dev Container（生成本地覆盖并挂载）
-  - `open-project.sh <路径|Git URL>` — 打开指定项目（生成本地覆盖并挂载）
-  - `clear-override.sh` — 清理本地覆盖，恢复默认挂载
+  - `open-here.sh` — 使用 Dev Containers CLI 用本配置打开当前目录为工作区（无 CLI 时回退到本地覆盖）
+  - `open-project.sh <路径|Git URL>` — 用本配置打开指定项目（支持 git URL；无 CLI 时回退）
+  - `clear-override.sh` — 清理本地覆盖（仅在回退模式下有意义）
   - `switch-mode.sh` — 权限模式切换
 - `.claude/` — Claude Code 配置
   - `settings.local.json` — 项目级权限配置
