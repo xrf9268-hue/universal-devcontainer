@@ -11,9 +11,7 @@
   "remoteUser": "vscode",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "mounts": [
-    "source=claude-home,target=/home/vscode/.claude,type=volume"
-  ],
+  
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
@@ -25,7 +23,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "postCreateCommand": "bash .devcontainer/bootstrap-claude.sh",
-  "postStartCommand": "sudo bash .devcontainer/fix-claude-home.sh && sudo bash .devcontainer/init-firewall.sh || true",
+  "postStartCommand": "sudo bash .devcontainer/init-firewall.sh || true",
   "runArgs": [
     "--cap-add=NET_ADMIN",
     "--add-host=host.docker.internal:host-gateway"
