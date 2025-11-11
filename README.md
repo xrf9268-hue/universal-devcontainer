@@ -30,8 +30,7 @@ scripts/open-project.sh https://github.com/owner/repo.git
 
 说明：
 - 若 Dev Containers CLI 版本支持 `open`（较新版本），脚本将直接在容器中打开项目；
-- 若不支持（如 0.80.x），脚本会写入临时的 `.devcontainer/devcontainer.local.json` 并提示你执行 “Reopen in Container”；
-- 你也可以手动清理该覆盖：`scripts/clear-override.sh`。
+- 若不支持（如 0.80.x），脚本会在“项目目录”下生成最小的 `.devcontainer/devcontainer.json`，其 `extends` 指向本仓库的配置，然后自动打开该项目；此时在 VS Code 中执行“Reopen in Container”即可。
 
 进入容器后：
 ```bash
@@ -154,8 +153,8 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
   - `init-firewall.sh` — 防火墙初始化（postStart）
   - `setup-proxy.sh` — 代理配置脚本（可选执行）
 - `scripts/` — 辅助脚本
-  - `open-here.sh` — 使用 Dev Containers CLI 用本配置打开当前目录为工作区
-  - `open-project.sh <路径|Git URL>` — 用本配置打开指定项目（支持 git URL）
+  - `open-here.sh` — 使用 Dev Containers CLI 用本配置打开当前目录为工作区（兼容：生成 extends 文件）
+  - `open-project.sh <路径|Git URL>` — 用本配置打开指定项目（兼容：生成 extends 文件）
   - `switch-mode.sh` — 权限模式切换
 - `.claude/` — Claude Code 配置
   - `settings.local.json` — 项目级权限配置

@@ -13,20 +13,16 @@ if command -v devcontainer >/dev/null 2>&1 && devcontainer --help 2>/dev/null | 
   exec devcontainer open --config "$CONFIG_JSON" --workspace-folder "$PROJECT_DIR"
 fi
 
-echo "[universal-devcontainer] Dev Containers CLI 'open' not available. Using fallback override."
+echo "[universal-devcontainer] Dev Containers CLI 'open' not available. Using fallback: project-level extends."
 
-LOCAL_JSON="$REPO_ROOT/.devcontainer/devcontainer.local.json"
-mkdir -p "$REPO_ROOT/.devcontainer"
-PROJECT_NAME="$(basename "$PROJECT_DIR")"
-json_escape() { printf '%s' "$1" | sed -e 's/\\\\/\\\\\\\\/g' -e 's/\"/\\\"/g'; }
-PD_ESC="$(json_escape "$PROJECT_DIR")"
-PN_ESC="$(json_escape "$PROJECT_NAME")"
-cat > "$LOCAL_JSON" <<EOF
+PROJ_DEV_DIR="$PROJECT_DIR/.devcontainer"
+mkdir -p "$PROJ_DEV_DIR"
+cat > "$PROJ_DEV_DIR/devcontainer.json" <<EOF
 {
-  "workspaceMount": "source=$PD_ESC,target=/workspaces/$PN_ESC,type=bind,consistency=cached",
-  "workspaceFolder": "/workspaces/$PN_ESC"
+  "name": "$(basename "$PROJECT_DIR")",
+  "extends": "file:$CONFIG_JSON"
 }
 EOF
-echo "[universal-devcontainer] Wrote override: $LOCAL_JSON"
-echo "Next: In VS Code, run 'Dev Containers: Reopen in Container'."
-exec code "$REPO_ROOT"
+echo "[universal-devcontainer] Wrote: $PROJ_DEV_DIR/devcontainer.json (extends current repo config)"
+echo "Opening project in VS Code; choose 'Dev Containers: Reopen in Container' if prompted."
+exec code "$PROJECT_DIR"
