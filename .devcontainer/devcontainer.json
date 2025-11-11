@@ -25,7 +25,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "postCreateCommand": "bash .devcontainer/bootstrap-claude.sh",
-  "postStartCommand": "sudo bash .devcontainer/init-firewall.sh || true",
+  "postStartCommand": "sudo bash .devcontainer/fix-claude-home.sh && sudo bash .devcontainer/init-firewall.sh || true",
   "runArgs": [
     "--cap-add=NET_ADMIN",
     "--add-host=host.docker.internal:host-gateway"
