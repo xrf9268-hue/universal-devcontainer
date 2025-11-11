@@ -124,5 +124,10 @@ if [[ -n "${CLAUDE_CODE_API_KEY_HELPER_TTL_MS:-}" ]]; then
 fi
 
 echo "[bootstrap] ✔ Claude Code installed. BYPASS mode is the default."
-[[ -n "${CLAUDE_ORG_UUID:-}" ]] && echo "   forceLoginOrgUUID=$CLAUDE_ORG_UUID"
-[[ -n "${ANTHROPIC_API_KEY:-}" ]] && echo "   apiKeyHelper enabled"
+if [[ -n "${CLAUDE_ORG_UUID:-}" ]]; then
+  echo "   forceLoginOrgUUID=$CLAUDE_ORG_UUID"
+fi
+if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+  echo "   apiKeyHelper enabled"
+fi
+exit 0
