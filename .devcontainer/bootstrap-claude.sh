@@ -26,7 +26,9 @@ BASE_CFG=$(cat <<'JSON'
   },
   "extraKnownMarketplaces": {
     "claude-code-plugins": {
-      "source": { "source": "github", "repo": "anthropics/claude-code" }
+      "source": {
+        "github": { "repo": "anthropics/claude-code", "path": "plugins" }
+      }
     }
   },
   "enabledPlugins": {

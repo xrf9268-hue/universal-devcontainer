@@ -132,6 +132,16 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 - `pr-review-toolkit` — PR 审查工具
 - `security-guidance` — 安全指导
 
+#### 插件故障排查（not found in marketplace）
+- 现象：`/doctor` 显示例如 `Plugin commit-commands not found in marketplace claude-code-plugins`。
+- 原因：插件“市场”源路径未正确解析，或网络无法拉取 GitHub 索引。
+- 解决：
+  - 已修正 bootstrap 的市场配置（指向 `anthropics/claude-code/plugins`）。在容器内执行：`bash .devcontainer/bootstrap-claude.sh` 以合并更新到 `~/.claude/settings.json`。
+  - 验证：
+    - `claude /plugins marketplaces` 应出现 `claude-code-plugins`
+    - `claude /plugins search commit-commands` 能搜索到插件
+    - 如仍失败，检查网络/代理能否访问 GitHub（见下方“防火墙白名单”和 `docs/PROXY_SETUP.md`）。
+
 ### 自定义命令和技能
 - `/review-pr <PR编号>` — 分析 GitHub PR 并生成审查要点
 - `reviewing-prs` skill — 专注于代码审查的 AI 技能
