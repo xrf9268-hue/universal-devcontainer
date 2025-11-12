@@ -248,6 +248,14 @@ universal-devcontainer/
 
 ## 故障排查
 
+### 登录故障排查卡片（浏览器授权/localhost 回调）
+- 现象：授权页点击 Authorize 一直转圈。
+- 快速自检：
+  - VS Code 左侧 “PORTS” 面板 → 是否出现容器端口（如 41521），并映射为 `localhost:<同号端口>`。
+  - 宿主机浏览器或终端直连 `http://127.0.0.1:<端口>/` 应返回 404（表示回调服务活着）。
+  - 宿主代理绕行需包含：`localhost, 127.0.0.1, ::1, host.docker.internal`（避免被代理/IPv6 影响）。
+- 详细步骤与常见代理示例（Shadowrocket/Clash/Surge/SwitchyOmega/PAC）：见 docs/PROXY_SETUP.md 的“宿主机绕行（localhost 回调必读）”。
+
 ### 快速排错卡片：打开项目（Workspace does not exist）
 - 推荐启动方式：`scripts/open-project.sh /path/to/your/project`（为每个项目开启独立 VS Code 进程，确保继承 `PROJECT_PATH`）。
 - 手动方式：从终端执行 `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`（不要从 Dock 启动 VS Code）。

@@ -311,9 +311,116 @@ fi
   "terminal.integrated.env.linux": {
     "HTTP_PROXY": "http://host.docker.internal:7890",
     "HTTPS_PROXY": "http://host.docker.internal:7890"
-  }
+}
 }
 ```
+
+## 宿主机绕行（localhost 回调必读）
+
+某些登录流程（如 Claude Code 的浏览器授权）会使用本地回调：浏览器跳转到 `http://localhost:<端口>/callback`，而回调服务实际跑在“容器内”，依赖 VS Code 端口转发把容器端口映射到宿主机相同端口。因此，必须确保“宿主机浏览器访问 localhost”不会经过代理，且不会被 IPv6/解析差异干扰。
+
+### 推荐绕行清单（添加到宿主机/代理客户端）
+
+- localhost
+- 127.0.0.1
+- ::1
+- host.docker.internal
+- 可选：`*.local`
+- 可选直连内网段：`127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10`
+
+说明：`::1` 是 IPv6 的 localhost。很多浏览器会优先尝试 `::1`，未绕行会导致请求被代理接管或连接失败，从而出现“授权页一直转圈”。
+
+### macOS 系统代理（系统设置）
+
+路径：系统设置 → 网络 → 选择当前网络 → 详情 → 代理
+
+- 如启用“自动发现代理/自动配置代理/HTTP(S) 代理”，在“忽略这些主机与域的代理设置”填入：
+  - `localhost, 127.0.0.1, ::1, host.docker.internal, *.local`
+- 能力允许时，关闭“自动发现/自动配置代理”，避免 PAC 覆盖本地绕行；或确保 PAC 对上述目标返回 `DIRECT`。
+
+### Shadowrocket（规则示例）
+
+在使用的配置文件中添加以下规则（顺序靠前）：
+
+```
+DOMAIN,localhost,DIRECT
+DOMAIN,host.docker.internal,DIRECT
+DOMAIN-SUFFIX,local,DIRECT
+IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+IP-CIDR,::1/128,DIRECT,no-resolve
+```
+
+应用/重载规则后再重试授权。
+
+### Clash / ClashX（规则示例）
+
+在 `rules:` 中加入（放在较前位置）：
+
+```
+- DOMAIN,localhost,DIRECT
+- DOMAIN,host.docker.internal,DIRECT
+- DOMAIN-SUFFIX,local,DIRECT
+- IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+- IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+- IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+- IP-CIDR,::1/128,DIRECT,no-resolve
+```
+
+如使用 TUN/增强模式，也可在 bypass/排除清单增加上述条目。
+
+### Surge（规则示例）
+
+```
+DOMAIN,localhost,DIRECT
+DOMAIN,host.docker.internal,DIRECT
+DOMAIN-SUFFIX,local,DIRECT
+IP-CIDR,127.0.0.0/8,DIRECT
+IP-CIDR,10.0.0.0/8,DIRECT
+IP-CIDR,172.16.0.0/12,DIRECT
+IP-CIDR,192.168.0.0/16,DIRECT
+IP-CIDR,100.64.0.0/10,DIRECT
+IP-CIDR6,::1/128,DIRECT
+```
+
+### SwitchyOmega（浏览器扩展）
+
+- 在使用的 Profile 的 Bypass List（或“直接连接”规则）加入：
+  - `localhost, 127.0.0.1, ::1, host.docker.internal, *.local`
+
+### PAC 文件（示例片段）
+
+```javascript
+function FindProxyForURL(url, host) {
+  if (
+    isPlainHostName(host) ||
+    host == 'localhost' ||
+    shExpMatch(host, '127.0.0.1') ||
+    host == '::1' ||
+    dnsDomainIs(host, '.local') ||
+    host == 'host.docker.internal' ||
+    isInNet(dnsResolve(host), '127.0.0.0', '255.0.0.0') ||
+    isInNet(dnsResolve(host), '10.0.0.0', '255.0.0.0') ||
+    isInNet(dnsResolve(host), '172.16.0.0', '255.240.0.0') ||
+    isInNet(dnsResolve(host), '192.168.0.0', '255.255.0.0') ||
+    isInNet(dnsResolve(host), '100.64.0.0', '255.192.0.0')
+  ) {
+    return 'DIRECT';
+  }
+  return 'PROXY your-proxy:port'; // 按需替换
+}
+```
+
+### 验证步骤
+
+- 宿主机：`curl -v http://localhost:<端口>/` 不应出现 “Proxy CONNECT …”，应直接连到 `127.0.0.1:<端口>`（看到 404 也算成功）。
+- VS Code → Ports 面板：对该端口选择 “Open in Browser”，可打开 404 页面；随后在授权页点击 Authorize 应一次完成跳转。
+- 若抓包/浏览器 DevTools 显示先连 `::1` 失败再回退，说明 `::1` 未纳入绕行；补充后重试。
 
 ## 参考资料
 
