@@ -76,3 +76,42 @@ cat <<EOT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EOT
 SH
+
+# Overwrite banner script to show on every interactive terminal (no once-per-start guard)
+RUN tee /usr/local/bin/devcontainer-banner.sh >/dev/null <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only for interactive shells
+if [ -z "${PS1:-}" ]; then exit 0; fi
+
+PROJECT="${PROJECT_PATH:-}"
+WS="/workspace"
+UNI="/universal"
+
+is_mounted() {
+  grep -qE " $1 " /proc/mounts 2>/dev/null
+}
+
+status_ws="absent"
+if [ -d "$WS" ]; then
+  if is_mounted "$WS"; then status_ws="mounted"; else status_ws="dir-only"; fi
+fi
+
+status_uni="missing"
+if is_mounted "$UNI"; then status_uni="mounted"; else status_uni="missing"; fi
+
+cat <<EOT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Dev Container — Workspace status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PROJECT_PATH: ${PROJECT:-<not set>}
+ /workspace:   ${status_ws}
+ /universal:   ${status_uni}
+ Tip: set PROJECT_PATH via scripts/open-project.sh or dev.containers.defaultEnv
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EOT
+SH
+
+# Also hook into zsh if present
+RUN bash -lc 'if [ -d /etc/zsh ]; then printf "\n# devcontainer banner (interactive shells)\nif [ -n \"$PS1\" ]; then /usr/local/bin/devcontainer-banner.sh 2>/dev/null || true; fi\n" >> /etc/zsh/zshrc; fi'
