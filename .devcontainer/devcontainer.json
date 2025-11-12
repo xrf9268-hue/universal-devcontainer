@@ -8,6 +8,8 @@
       "NO_PROXY": "${localEnv:NO_PROXY}"
     }
   },
+  "workspaceMount": "source=${localEnv:PROJECT_PATH:-${localWorkspaceFolder}},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
   "remoteUser": "vscode",
 
   "features": {

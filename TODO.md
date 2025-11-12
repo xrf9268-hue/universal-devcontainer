@@ -353,7 +353,6 @@ update-config.sh
 
 **范围**：
 - [ ] README.md（英文版）
-- [ ] MIGRATION.md（英文版）
 - [ ] 脚本输出国际化
 
 **预估工作量**：1-2 天

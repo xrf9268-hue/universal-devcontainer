@@ -2,10 +2,21 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <path|git-url>"
-  echo ""
-  echo "Opens a project folder with the universal-devcontainer configuration."
-  echo "Creates a minimal .devcontainer/devcontainer.json with 'extends' if needed."
+  cat <<EOF
+Usage: $0 <path|git-url>
+
+Opens the universal-devcontainer with your project mounted inside.
+
+Examples:
+  $0 /path/to/your/project
+  $0 .
+  $0 https://github.com/owner/repo.git
+
+How it works:
+  1. Sets PROJECT_PATH environment variable
+  2. Opens universal-devcontainer in VS Code
+  3. Container mounts your project at /workspace
+EOF
   exit 1
 fi
 
@@ -27,45 +38,28 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Universal Dev Container - Project Setup"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Project: $PROJ_NAME"
-echo "  Path:    $PROJECT_DIR"
+echo "  Project:    $PROJ_NAME"
+echo "  Path:       $PROJECT_DIR"
+echo "  DevContainer: $REPO_ROOT"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Create minimal devcontainer configuration with extends
-PROJ_DEV_DIR="$PROJECT_DIR/.devcontainer"
-mkdir -p "$PROJ_DEV_DIR"
+# Export PROJECT_PATH for VS Code to pick up
+export PROJECT_PATH="$PROJECT_DIR"
 
-# Calculate relative path for file: extends (macOS/Linux compatible)
-if command -v python3 >/dev/null 2>&1; then
-  REL_PATH=$(python3 -c "import os; print(os.path.relpath('$REPO_ROOT', '$PROJECT_DIR'))")
-else
-  # Fallback: use GNU realpath if available
-  REL_PATH=$(realpath --relative-to="$PROJECT_DIR" "$REPO_ROOT" 2>/dev/null || echo "../../universal-devcontainer")
-fi
-
-# Create the extends configuration (using file: path for reliability)
-cat > "$PROJ_DEV_DIR/devcontainer.json" <<EOF
-{
-  "name": "$PROJ_NAME",
-  "extends": "file:$REL_PATH/.devcontainer/devcontainer.json"
-}
-EOF
-
-echo "✓ Created .devcontainer/devcontainer.json"
-echo "  Strategy: extends file:$REL_PATH/.devcontainer/devcontainer.json"
-
-# Note: Using file: path instead of github: because the base config
-# contains a Dockerfile with relative path that only works with file: extends
-
+echo "✓ Setting PROJECT_PATH=$PROJECT_DIR"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Next Steps:"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  1. Opening project in VS Code..."
+echo "  1. Opening universal-devcontainer in VS Code..."
 echo "  2. When prompted, click 'Reopen in Container'"
-echo "  3. Wait for container to build (first time only)"
+echo "  3. Your project will be mounted at /workspace"
+echo ""
+echo "  Note: Set these environment variables before running:"
+echo "    export CLAUDE_LOGIN_METHOD=console"
+echo "    export ANTHROPIC_API_KEY=sk-ant-..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-exec code "$PROJECT_DIR"
+exec code "$REPO_ROOT"

@@ -24,65 +24,59 @@
 
 ## 快速开始 🚀
 
-**选择以下任一方法**（从简单到高级）：
+**核心概念**：这个仓库提供一个可复用的 Dev Container 配置，通过 `workspaceMount` 动态挂载你的项目。
 
-### 方法 1：VS Code UI 流程（推荐新手）
-
-**零文件创建，纯 UI 操作**
-
-1. 打开 VS Code
-2. 命令面板（Cmd/Ctrl+Shift+P）→ `Dev Containers: Open Folder in Container`
-3. 选择你的项目文件夹
-4. 选择 **"From a local devcontainer.json"**
-5. 导航到 `universal-devcontainer/.devcontainer/devcontainer.json`
-6. 等待容器启动完成 ✅
-
-### 方法 2：项目配置文件（推荐多项目使用）
-
-**在项目中创建 1 个最小文件**
-
-在你的项目根目录创建 `.devcontainer/devcontainer.json`：
-
-```json
-{
-  "name": "my-project",
-  "extends": "github:Joe-oss9527/universal-devcontainer"
-}
-```
-
-然后：
-- 命令面板 → `Dev Containers: Reopen in Container`
-- 或直接用 VS Code 打开项目文件夹，会自动提示重新打开
-
-**优点**：
-- 项目可以提交这个文件（团队共享配置）
-- 无需网络时可用 `file:相对路径` 替代 `github:`
-- 支持项目级自定义（覆盖端口、环境变量等）
-
-### 方法 3：脚本辅助工具
-
-**一键生成配置并打开**
+### 方法 1：使用脚本（最简单）⭐
 
 ```bash
-# 设置 Claude 登录方式
+# 设置 Claude 登录方式（首次使用需要）
 export CLAUDE_LOGIN_METHOD=console
-export ANTHROPIC_API_KEY=sk-ant-...  # 或用其他登录方式
+export ANTHROPIC_API_KEY=sk-ant-...
 
-# 在当前目录创建配置
-cd /path/to/your/project
-/path/to/universal-devcontainer/scripts/open-here.sh
-
-# 或指定项目路径
+# 为任意项目打开容器
 /path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
 
-# 或直接从 Git 仓库
+# 或在当前目录
+cd /path/to/your/project
+/path/to/universal-devcontainer/scripts/open-project.sh .
+
+# 或直接从 Git 仓库克隆并开发
 /path/to/universal-devcontainer/scripts/open-project.sh https://github.com/owner/repo.git
 ```
 
-脚本会：
-1. 自动创建最小的 `.devcontainer/devcontainer.json`（方法 2 的配置）
-2. 打开 VS Code
-3. 提示你点击"Reopen in Container"
+**工作原理**：
+1. 脚本设置 `PROJECT_PATH` 环境变量指向你的项目
+2. 打开 universal-devcontainer 目录（不是你的项目目录）
+3. VS Code 提示 "Reopen in Container"
+4. 容器启动后，你的项目被挂载到 `/workspace`
+
+### 方法 2：手动设置环境变量
+
+如果不想用脚本，可以手动操作：
+
+```bash
+# 1. 设置环境变量
+export PROJECT_PATH=/path/to/your/project
+export CLAUDE_LOGIN_METHOD=console
+export ANTHROPIC_API_KEY=sk-ant-...
+
+# 2. 用 VS Code 打开 universal-devcontainer 目录
+code /path/to/universal-devcontainer
+
+# 3. 在 VS Code 中：Dev Containers: Reopen in Container
+```
+
+### 方法 3：开发容器本身
+
+如果你想在这个容器里开发 universal-devcontainer 本身：
+
+```bash
+# 不设置 PROJECT_PATH，直接打开
+code /path/to/universal-devcontainer
+# Reopen in Container
+```
+
+容器会挂载 universal-devcontainer 目录到 `/workspace`。
 
 ---
 
@@ -233,15 +227,12 @@ universal-devcontainer/
 │   ├── init-firewall.sh        # 防火墙规则
 │   └── setup-proxy.sh          # 代理配置
 ├── scripts/
-│   ├── open-here.sh            # 在当前目录创建配置
-│   ├── open-project.sh         # 为指定项目创建配置
+│   ├── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
 │   └── switch-mode.sh          # 权限模式切换
 ├── .claude/
 │   └── settings.local.json     # 项目级权限配置
 └── docs/
-    ├── PROXY_SETUP.md          # 代理配置详细指南
-    ├── DEVCONTAINERS_KNOWN_ISSUES.md  # 已知问题和解决方案
-    └── MIGRATION.md            # 升级指南（针对旧版本用户）
+    └── PROXY_SETUP.md          # 代理配置详细指南
 ```
 
 ---
@@ -323,12 +314,10 @@ scripts/switch-mode.sh safe
 ### v2.0.0（简化版本）— 2025-01
 
 **重大变更**（提升易用性）：
-- ✅ **移除** `workspaceMount` 和 `workspaceFolder`（修复所有已知问题）
-- ✅ **简化**脚本逻辑（减少 50%+ 复杂度，移除 Python 依赖）
-- ✅ **重构**文档（新增快速开始指南）
-- ✅ **统一**策略（extends 作为唯一推荐方法）
-
-**升级指南**：见 [docs/MIGRATION.md](docs/MIGRATION.md)
+- ✅ 使用 **workspaceMount** 动态挂载项目（不再依赖 extends）
+- ✅ 简化脚本逻辑（从 71 行减少到 65 行）
+- ✅ 删除所有不稳定的 extends 相关代码
+- ✅ 一个容器服务所有项目
 
 ---
 
