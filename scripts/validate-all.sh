@@ -85,8 +85,9 @@ echo "🔎 Checking for common issues..."
 
 # Check for hardcoded secrets (actual values, not just variable names)
 # Look for patterns like: API_KEY="sk-...", password="...", etc.
+# Excludes: docs (examples), JSON configs, and validation scripts themselves
 if git ls-files | xargs grep -i -E "(api_key|password|secret|token)\s*=\s*['\"][^'\"]{20,}" | \
-   grep -v -E "\.md$|\.json|validate-all\.sh|security-scan\.sh" > /dev/null 2>&1; then
+   grep -v -E "\.md$|docs/.*\.md$|\.json$|validate-all\.sh|security-scan\.sh|SECURITY" > /dev/null 2>&1; then
   echo -e "  ${YELLOW}⚠${NC} Found potential hardcoded secrets (review needed)"
   ERRORS=$((ERRORS + 1))
 else

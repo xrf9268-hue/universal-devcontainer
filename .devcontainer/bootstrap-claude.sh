@@ -81,7 +81,7 @@ TMP_HOST_CFG=""
 if [[ -f "$HOST_CFG" ]]; then
   echo "[bootstrap] Found host settings at $HOST_CFG, importing..."
   TMP_HOST_CFG="$(mktemp)"
-  if sudo cat "$HOST_CFG" > "$TMP_HOST_CFG" 2>/dev/null; then
+  if sudo cat "$HOST_CFG" 2>/dev/null | tee "$TMP_HOST_CFG" > /dev/null; then
     EXISTING_CFG_PATH="$TMP_HOST_CFG"
   else
     echo "[bootstrap] Warning: unable to read host settings.json; falling back to container-local settings (if any)" >&2
