@@ -2,7 +2,7 @@
 
 This directory contains GitHub Actions workflows for automated testing, security scanning, and release management.
 
-## Workflows
+## Active Workflows
 
 ### 1. `test-devcontainer.yml` - Continuous Integration
 
@@ -25,18 +25,20 @@ This directory contains GitHub Actions workflows for automated testing, security
 **Triggers**: Push/PR to main, Weekly schedule (Mon 9 AM UTC), Branch protection changes
 
 **Jobs**:
-- **Trivy Image Scan**: Vulnerability scanning of container images
-- **Trivy FS Scan**: Filesystem vulnerability scanning
+- **Trivy Image Scan**: Vulnerability scanning of container images (HIGH/CRITICAL)
+- **Trivy FS Scan**: Filesystem vulnerability scanning (all dependencies)
 - **Secret Scan**: TruffleHog secret detection in git history
-- **CodeQL**: Static code analysis
-- **OpenSSF Scorecard**: Repository security best practices (main branch only)
-- **Dependency Review**: Dependency vulnerability analysis (optional)
+- **CodeQL**: Static code analysis for security vulnerabilities
+- **OpenSSF Scorecard**: Repository security best practices assessment
 
-**Optional Features**:
-- **Dependency Review** requires "Dependency graph" enabled in repository settings
-  - Path: Settings → Code security and analysis → Dependency graph
-  - If disabled: Job shows warning but workflow continues (not a failure)
-  - Alternative: Trivy provides comprehensive dependency scanning
+**Comprehensive Coverage**:
+- ✅ OS package vulnerabilities (Trivy)
+- ✅ Application dependency vulnerabilities (Trivy)
+- ✅ npm, pip, Go modules, etc. (Trivy supports 20+ ecosystems)
+- ✅ License compliance can be added to Trivy config
+- ✅ Secret detection across entire history
+- ✅ Static code analysis (CodeQL)
+- ✅ Repository security posture (Scorecard)
 
 ---
 
@@ -55,26 +57,75 @@ This directory contains GitHub Actions workflows for automated testing, security
 
 ---
 
+## Optional Workflows
+
+### `dependency-review.optional.yml` - Enhanced Dependency Analysis
+
+**Status**: ⚠️ **Disabled by default** (requires manual activation)
+
+**Why Optional**:
+- Requires **"Dependency graph"** feature enabled (admin access required)
+- Not available on forked repositories by default
+- Main `security-scan.yml` already provides comprehensive dependency scanning via Trivy
+- This adds: License compliance enforcement, GitHub-specific dependency analysis
+
+**Requirements**:
+1. Public repository, OR
+2. Private repository with GitHub Advanced Security license
+3. Dependency graph enabled: Settings → Code security → Dependency graph
+
+**To Enable**:
+```bash
+# Rename the file to activate
+mv .github/workflows/dependency-review.optional.yml \
+   .github/workflows/dependency-review.yml
+
+git add .github/workflows/dependency-review.yml
+git commit -m "Enable dependency review workflow"
+git push
+```
+
+**What It Adds** (if enabled):
+- License compliance checking (blocks GPL-3.0, AGPL-3.0, etc.)
+- PR comments with dependency changes
+- Additional vulnerability database (complements Trivy)
+- GitHub-specific security advisories
+
+**Not Needed If**:
+- You don't have admin access to enable dependency graph
+- Repository is a fork (dependency graph disabled by default)
+- Trivy scanning is sufficient for your needs (it usually is!)
+
+---
+
 ## Common Questions
 
-### Why does "Dependency Review" show an error?
+### Why was Dependency Review removed from the main workflow?
 
-The dependency-review job requires the "Dependency graph" feature to be enabled in repository settings. This is an **optional enhancement** - if not enabled:
+**Research Finding**: This is a [known issue (#164)](https://github.com/actions/dependency-review-action/issues/164)
 
-- ✅ Workflow continues successfully (not a failure)
-- ✅ Trivy provides comprehensive dependency vulnerability scanning
-- ✅ CodeQL provides additional security analysis
+**Problem**:
+- Dependency graph is **disabled by default on forked repositories**
+- Requires **admin permissions** to enable
+- No way to conditionally check if it's available
+- Even with `continue-on-error: true`, shows confusing error messages
 
-**To enable** (optional, requires admin access):
-1. Go to Repository Settings
-2. Navigate to "Code security and analysis"
-3. Enable "Dependency graph"
+**Solution** (following best practices):
+- ❌ Removed from main `security-scan.yml` workflow
+- ✅ Moved to optional `dependency-review.optional.yml` file
+- ✅ Users with access can easily enable it by renaming the file
+- ✅ Main workflow provides comprehensive scanning via Trivy anyway
 
-**Why it's optional**:
-- Not available on all repository types
-- Requires admin permissions
-- Trivy already provides thorough dependency scanning
-- Makes workflows portable across different repository configurations
+**What You're NOT Missing**:
+- Trivy scans **20+ dependency ecosystems** (npm, pip, Go, Rust, etc.)
+- Trivy detects **HIGH and CRITICAL vulnerabilities**
+- Trivy can enforce license compliance (if configured)
+- This is **more comprehensive** than dependency-review in many cases
+
+**Official Sources**:
+- [GitHub Issue: Unclear error when dependency graph disabled](https://github.com/actions/dependency-review-action/issues/164)
+- [GitHub Docs: About dependency review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review)
+- Best practice: Don't include features requiring admin permissions in default workflows
 
 ---
 

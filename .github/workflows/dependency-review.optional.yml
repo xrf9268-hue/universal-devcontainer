@@ -1,0 +1,67 @@
+# Optional: Dependency Review
+#
+# This workflow requires the "Dependency graph" feature to be enabled.
+# Path: Repository Settings → Code security and analysis → Dependency graph
+#
+# Requirements:
+#   - Public repository, OR
+#   - Private repository with GitHub Advanced Security license
+#   - Dependency graph feature enabled (requires admin access)
+#
+# To enable this workflow:
+#   1. Ensure dependency graph is enabled in repository settings
+#   2. Rename this file from .optional to .yml
+#      mv dependency-review.optional.yml dependency-review.yml
+#   3. Commit and push
+#
+# Why it's optional:
+#   - Requires admin permissions to enable dependency graph
+#   - Not available on forked repositories by default
+#   - Main security-scan.yml already provides comprehensive scanning via Trivy
+#   - This adds license compliance checking and additional dependency analysis
+#
+# For more information:
+#   - https://github.com/actions/dependency-review-action
+#   - https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review
+
+name: Dependency Review (Optional)
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write  # To post comments on PRs
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Fail on high or critical vulnerabilities
+          fail-on-severity: high
+
+          # Block problematic licenses
+          deny-licenses: GPL-3.0, AGPL-3.0, LGPL-3.0
+
+          # Post comment on PR with findings
+          comment-summary-in-pr: always
+
+          # Additional configuration
+          fail-on-scopes: runtime, development
+          allow-ghsas: []  # Allow specific GitHub Security Advisories if needed
+
+      - name: Upload results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: dependency-review-results.sarif
+        continue-on-error: true
