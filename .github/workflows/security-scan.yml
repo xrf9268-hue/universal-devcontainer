@@ -158,6 +158,8 @@ jobs:
       id-token: write
       contents: read
       actions: read
+    # Only run on main branch to avoid scorecard API rate limits
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout code
@@ -166,7 +168,7 @@ jobs:
           persist-credentials: false
 
       - name: Run analysis
-        uses: ossf/scorecard-action@v2
+        uses: ossf/scorecard-action@v2.4.0
         with:
           results_file: results.sarif
           results_format: sarif
