@@ -28,8 +28,8 @@ This directory contains GitHub Actions workflows for automated testing, security
 - **Trivy Image Scan**: Vulnerability scanning of container images (HIGH/CRITICAL)
 - **Trivy FS Scan**: Filesystem vulnerability scanning (all dependencies)
 - **Secret Scan**: TruffleHog secret detection in git history
-- **CodeQL**: Static code analysis for security vulnerabilities
 - **OpenSSF Scorecard**: Repository security best practices assessment
+- **ShellCheck**: Shell script static analysis (in test-devcontainer.yml)
 
 **Comprehensive Coverage**:
 - ✅ OS package vulnerabilities (Trivy)
@@ -37,8 +37,11 @@ This directory contains GitHub Actions workflows for automated testing, security
 - ✅ npm, pip, Go modules, etc. (Trivy supports 20+ ecosystems)
 - ✅ License compliance can be added to Trivy config
 - ✅ Secret detection across entire history
-- ✅ Static code analysis (CodeQL)
+- ✅ Shell script analysis (ShellCheck - more appropriate than CodeQL for this repo)
 - ✅ Repository security posture (Scorecard)
+
+**Why No CodeQL?**
+This repository is infrastructure-as-code (DevContainer configs, shell scripts, YAML). CodeQL is designed for application source code (JavaScript, Python, Java, etc.). We use ShellCheck instead for shell script analysis, which is more appropriate and effective for this use case.
 
 ---
 
