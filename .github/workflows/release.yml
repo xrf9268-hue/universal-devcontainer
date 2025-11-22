@@ -10,6 +10,11 @@ on:
         required: true
         type: string
 
+# Default permissions: read-only at workflow level
+# Build job overrides to write packages for GHCR
+permissions:
+  contents: read
+
 jobs:
   validate-release:
     name: Validate Release Readiness

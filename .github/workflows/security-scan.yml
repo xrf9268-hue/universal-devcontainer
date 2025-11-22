@@ -11,6 +11,11 @@ on:
   branch_protection_rule:  # Trigger on branch protection changes (for Scorecard)
   workflow_dispatch:
 
+# Default permissions: read-only for all jobs
+# Individual jobs override with specific permissions as needed
+permissions:
+  contents: read
+
 jobs:
   trivy-scan:
     name: Trivy Vulnerability Scan
