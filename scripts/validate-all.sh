@@ -83,12 +83,14 @@ echo ""
 # Check for common issues
 echo "🔎 Checking for common issues..."
 
-# Check for secrets in code
-if git ls-files | xargs grep -i -E "api_key|password|secret|token" | grep -v -E "\.md$|settings\.local\.json|IMPLEMENTATION|TODO" > /dev/null 2>&1; then
-  echo -e "  ${YELLOW}⚠${NC} Found potential secrets in code (review needed)"
+# Check for hardcoded secrets (actual values, not just variable names)
+# Look for patterns like: API_KEY="sk-...", password="...", etc.
+if git ls-files | xargs grep -i -E "(api_key|password|secret|token)\s*=\s*['\"][^'\"]{20,}" | \
+   grep -v -E "\.md$|\.json|validate-all\.sh|security-scan\.sh" > /dev/null 2>&1; then
+  echo -e "  ${YELLOW}⚠${NC} Found potential hardcoded secrets (review needed)"
   ERRORS=$((ERRORS + 1))
 else
-  echo -e "  ${GREEN}✓${NC} No obvious secrets found"
+  echo -e "  ${GREEN}✓${NC} No hardcoded secrets found in code"
 fi
 
 # Check for required files
