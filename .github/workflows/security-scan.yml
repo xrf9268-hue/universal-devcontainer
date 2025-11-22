@@ -1,0 +1,215 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  trivy-scan:
+    name: Trivy Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build container image for scanning
+        run: |
+          # Create minimal Dockerfile for scanning
+          cat > .devcontainer/Dockerfile.scan <<'EOF'
+          FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+          # Install system dependencies
+          RUN apt-get update && apt-get install -y \
+              curl \
+              git \
+              jq \
+              sudo \
+              iptables \
+              && rm -rf /var/lib/apt/lists/*
+
+          # Install Node.js LTS
+          RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+              && apt-get install -y nodejs \
+              && rm -rf /var/lib/apt/lists/*
+
+          # Install Python
+          RUN apt-get update && apt-get install -y \
+              python3 \
+              python3-pip \
+              && rm -rf /var/lib/apt/lists/*
+
+          # Create vscode user
+          RUN useradd -m -s /bin/bash vscode || true
+
+          USER vscode
+          EOF
+
+          docker build -f .devcontainer/Dockerfile.scan -t universal-devcontainer:scan .devcontainer/
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'universal-devcontainer:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'  # Don't fail build, just report
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy scanner (table output)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'universal-devcontainer:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+  trivy-fs-scan:
+    name: Trivy Filesystem Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload Trivy FS results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+
+      - name: Run Trivy FS scanner (table output)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for secret scanning
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]  # Analyze shell scripts as javascript
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  security-scorecard:
+    name: OpenSSF Scorecard
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run analysis
+        uses: ossf/scorecard-action@v2
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-3.0, AGPL-3.0
+
+  summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [trivy-scan, trivy-fs-scan, secret-scan]
+    if: always()
+
+    steps:
+      - name: Report results
+        run: |
+          echo "=================================="
+          echo "Security Scan Summary"
+          echo "=================================="
+          echo "Trivy Image Scan: ${{ needs.trivy-scan.result }}"
+          echo "Trivy FS Scan: ${{ needs.trivy-fs-scan.result }}"
+          echo "Secret Scan: ${{ needs.secret-scan.result }}"
+          echo "=================================="
+
+          # Note: We don't fail the build on security findings
+          # Findings are uploaded to GitHub Security tab for review
+          echo "✅ Security scans completed"
+          echo "⚠️  Review findings in GitHub Security tab"

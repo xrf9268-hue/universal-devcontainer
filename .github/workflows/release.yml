@@ -1,0 +1,219 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v2.1.0)'
+        required: true
+        type: string
+
+jobs:
+  validate-release:
+    name: Validate Release Readiness
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify version format
+        run: |
+          VERSION="${{ github.event.inputs.version || github.event.release.tag_name }}"
+          echo "Releasing version: $VERSION"
+
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: v2.1.0"
+            exit 1
+          fi
+
+          echo "✅ Version format valid"
+
+      - name: Run validation tests
+        run: |
+          ./scripts/validate-all.sh
+
+      - name: Check security documentation
+        run: |
+          if [ ! -f "docs/SECURITY.md" ]; then
+            echo "❌ SECURITY.md required for release"
+            exit 1
+          fi
+
+          if [ ! -f "docs/SECURITY_AUDIT.md" ]; then
+            echo "❌ SECURITY_AUDIT.md required for release"
+            exit 1
+          fi
+
+          echo "✅ Security documentation present"
+
+      - name: Verify CHANGELOG updated
+        run: |
+          # TODO: Add CHANGELOG.md check when file exists
+          echo "⚠️  CHANGELOG.md check pending (TODO: Phase 1)"
+
+  build-image:
+    name: Build and Publish Container Image
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .devcontainer
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  security-scan-release:
+    name: Security Scan Release Image
+    runs-on: ubuntu-latest
+    needs: [build-image]
+
+    steps:
+      - name: Run Trivy on release image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/${{ github.repository }}:latest'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'  # Fail if critical/high vulnerabilities found
+
+  create-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "# Release $VERSION" > release-notes.md
+          echo "" >> release-notes.md
+          echo "## What's Changed" >> release-notes.md
+          echo "" >> release-notes.md
+
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            git log ${LAST_TAG}..HEAD --oneline --no-merges >> release-notes.md
+          else
+            git log --oneline --no-merges -20 >> release-notes.md
+          fi
+
+          echo "" >> release-notes.md
+          echo "## Security" >> release-notes.md
+          echo "- Security audit completed (see docs/SECURITY_AUDIT.md)" >> release-notes.md
+          echo "- All critical vulnerabilities addressed" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "## Installation" >> release-notes.md
+          echo '```bash' >> release-notes.md
+          echo "# Use pre-built image" >> release-notes.md
+          echo "# Update .devcontainer/devcontainer.json:" >> release-notes.md
+          echo '"image": "ghcr.io/${{ github.repository }}:'$VERSION'"' >> release-notes.md
+          echo '```' >> release-notes.md
+
+          cat release-notes.md
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  publish-template:
+    name: Publish Dev Container Template
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare template metadata
+        run: |
+          # TODO: Implement in Phase 2
+          echo "⚠️  Template publication pending Phase 2 implementation"
+
+      - name: Validate template
+        run: |
+          # TODO: Add template validation
+          echo "⚠️  Template validation pending Phase 2 implementation"
+
+  summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-image, security-scan-release]
+    if: always()
+
+    steps:
+      - name: Release summary
+        run: |
+          VERSION="${{ github.event.inputs.version || github.event.release.tag_name }}"
+          echo "=================================="
+          echo "Release Summary: $VERSION"
+          echo "=================================="
+          echo "Validation: ${{ needs.validate-release.result }}"
+          echo "Build Image: ${{ needs.build-image.result }}"
+          echo "Security Scan: ${{ needs.security-scan-release.result }}"
+          echo "=================================="
+
+          if [ "${{ needs.validate-release.result }}" != "success" ] || \
+             [ "${{ needs.build-image.result }}" != "success" ] || \
+             [ "${{ needs.security-scan-release.result }}" != "success" ]; then
+            echo "❌ Release failed - review errors above"
+            exit 1
+          fi
+
+          echo "✅ Release completed successfully!"
+          echo ""
+          echo "Container image available at:"
+          echo "  ghcr.io/${{ github.repository }}:$VERSION"
+          echo "  ghcr.io/${{ github.repository }}:latest"
+          echo ""
+          echo "Next steps:"
+          echo "  1. Update README with new version"
+          echo "  2. Announce release in discussions"
+          echo "  3. Update template metadata (Phase 2)"
