@@ -3,6 +3,8 @@
 > 可复用的 Dev Container 配置，集成 Claude Code、防火墙和代理支持。
 > 默认启用 **bypassPermissions**（绕过权限确认）— 仅用于**可信仓库**和**隔离环境**。
 
+**语言 / Languages**: [中文](README.md) | [English](README.en.md)
+
 ## 这是什么？
 
 这是一个预配置的开发容器环境，包含：

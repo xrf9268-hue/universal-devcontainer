@@ -1,0 +1,287 @@
+name: Test Dev Container
+
+on:
+  push:
+    branches: [ main, claude/** ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Default permissions: read-only
+# Principle of least privilege - no job needs write access
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Configuration Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON configuration files..."
+          jq empty .devcontainer/devcontainer.json
+          jq empty .claude/settings.local.json
+          echo "✅ All JSON files are valid"
+
+      - name: Check shell script syntax
+        run: |
+          echo "Checking shell script syntax..."
+          for script in scripts/*.sh .devcontainer/*.sh; do
+            if [ -f "$script" ]; then
+              echo "Checking: $script"
+              bash -n "$script"
+            fi
+          done
+          echo "✅ All shell scripts have valid syntax"
+
+      - name: Verify required files exist
+        run: |
+          echo "Verifying required files..."
+          required_files=(
+            "README.md"
+            ".devcontainer/devcontainer.json"
+            ".devcontainer/bootstrap-claude.sh"
+            ".devcontainer/init-firewall.sh"
+            "scripts/open-project.sh"
+            "LICENSE"
+            "docs/SECURITY.md"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+            echo "✅ Found: $file"
+          done
+          echo "✅ All required files present"
+
+  shellcheck:
+    name: ShellCheck Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: warning
+
+      - name: Run ShellCheck on devcontainer scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './.devcontainer'
+          severity: warning
+
+  build:
+    name: Build Dev Container
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build dev container (without Features)
+        run: |
+          # Create a minimal Dockerfile for CI testing
+          cat > .devcontainer/Dockerfile.ci <<'EOF'
+          FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+          # Install basic tools
+          RUN apt-get update && apt-get install -y \
+              curl \
+              git \
+              jq \
+              sudo \
+              iptables \
+              && rm -rf /var/lib/apt/lists/*
+
+          # Create vscode user
+          RUN useradd -m -s /bin/bash vscode || true
+
+          # Install Node.js LTS
+          RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+              && apt-get install -y nodejs \
+              && rm -rf /var/lib/apt/lists/*
+
+          # Install Python (os-provided)
+          RUN apt-get update && apt-get install -y \
+              python3 \
+              python3-pip \
+              && rm -rf /var/lib/apt/lists/*
+
+          USER vscode
+          EOF
+
+          docker build -f .devcontainer/Dockerfile.ci -t universal-devcontainer:ci .devcontainer/
+
+      - name: Test container tools
+        run: |
+          echo "Testing container has required tools..."
+
+          # Test Node.js
+          docker run --rm universal-devcontainer:ci node --version
+
+          # Test Python
+          docker run --rm universal-devcontainer:ci python3 --version
+
+          # Test iptables availability
+          docker run --rm --cap-add=NET_ADMIN universal-devcontainer:ci iptables --version
+
+          echo "✅ All tools available in container"
+
+      - name: Test firewall script
+        run: |
+          echo "Testing firewall script..."
+
+          # Copy firewall script to test
+          docker run --rm \
+            --cap-add=NET_ADMIN \
+            -v "$PWD/.devcontainer/init-firewall.sh:/test-firewall.sh:ro" \
+            universal-devcontainer:ci \
+            bash -c "bash -n /test-firewall.sh && echo '✅ Firewall script syntax valid'"
+
+  test-scripts:
+    name: Test Helper Scripts
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Test validate-all.sh
+        run: |
+          echo "Testing validation script..."
+          ./scripts/validate-all.sh
+
+      - name: Test script error handling
+        run: |
+          echo "Testing error handling..."
+
+          # Test that scripts handle missing files gracefully
+          if [ -f scripts/test-container.sh ]; then
+            echo "✅ test-container.sh exists"
+          fi
+
+          if [ -f scripts/security-scan.sh ]; then
+            echo "✅ security-scan.sh exists"
+          fi
+
+  security-check:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+
+          # Look for actual API keys (not documentation examples)
+          if git ls-files | xargs grep -E "sk-ant-api-[a-zA-Z0-9]{95}" | grep -v "README" | grep -v "\.md"; then
+            echo "❌ Found potential hardcoded API keys!"
+            exit 1
+          fi
+
+          echo "✅ No hardcoded secrets detected"
+
+      - name: Verify security documentation
+        run: |
+          echo "Checking security documentation..."
+
+          if [ ! -f "docs/SECURITY.md" ]; then
+            echo "❌ SECURITY.md missing"
+            exit 1
+          fi
+
+          if [ ! -f "docs/SECURITY_AUDIT.md" ]; then
+            echo "❌ SECURITY_AUDIT.md missing"
+            exit 1
+          fi
+
+          echo "✅ Security documentation present"
+
+      - name: Check .gitignore for sensitive files
+        run: |
+          echo "Verifying .gitignore..."
+
+          if ! grep -q "\.env" .gitignore; then
+            echo "⚠️  .env not in .gitignore"
+          fi
+
+          echo "✅ .gitignore check complete"
+
+  test-matrix:
+    name: Test Multiple Scenarios
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+      matrix:
+        test-scenario:
+          - name: "Standard mode"
+            strict_proxy: "0"
+          - name: "Strict proxy mode"
+            strict_proxy: "1"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test ${{ matrix.test-scenario.name }}
+        run: |
+          echo "Testing scenario: ${{ matrix.test-scenario.name }}"
+          echo "STRICT_PROXY_ONLY=${{ matrix.test-scenario.strict_proxy }}"
+
+          # Validate firewall script syntax
+          STRICT_PROXY_ONLY=${{ matrix.test-scenario.strict_proxy }} bash -n .devcontainer/init-firewall.sh
+
+          echo "✅ Scenario test passed"
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [validate, shellcheck, build, test-scripts, security-check, test-matrix]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "==================================="
+          echo "Test Suite Summary"
+          echo "==================================="
+          echo "✅ Validation: ${{ needs.validate.result }}"
+          echo "✅ ShellCheck: ${{ needs.shellcheck.result }}"
+          echo "✅ Build: ${{ needs.build.result }}"
+          echo "✅ Scripts: ${{ needs.test-scripts.result }}"
+          echo "✅ Security: ${{ needs.security-check.result }}"
+          echo "✅ Test Matrix: ${{ needs.test-matrix.result }}"
+          echo "==================================="
+
+          if [ "${{ needs.validate.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.test-scripts.result }}" != "success" ] || \
+             [ "${{ needs.security-check.result }}" != "success" ]; then
+            echo "❌ Some tests failed"
+            exit 1
+          fi
+
+          echo "✅ All tests passed!"

@@ -1,0 +1,68 @@
+# Trivy Ignore File
+# Exceptions for known issues with justifications
+#
+# Format: CVE-ID or Package@Version
+# Add justification comments for each exception
+
+# =============================================================================
+# Base Image Vulnerabilities (Ubuntu/Debian)
+# =============================================================================
+
+# Example: Uncomment and adjust as needed after first scan
+# CVE-2024-XXXXX
+# Justification: Fixed in next Ubuntu release, low severity, no exploitable path
+# Package: libssl1.1
+# Severity: LOW
+# Status: Accepted - waiting for upstream
+
+# =============================================================================
+# Node.js Vulnerabilities
+# =============================================================================
+
+# Example:
+# CVE-2024-XXXXX
+# Justification: Dev-only dependency, not exposed in production
+# Package: webpack-dev-server
+# Status: Accepted - dev environment only
+
+# =============================================================================
+# Python Vulnerabilities
+# =============================================================================
+
+# Example:
+# CVE-2024-XXXXX
+# Justification: Not used in dev container context
+# Package: pip
+# Status: Accepted - tool usage pattern not vulnerable
+
+# =============================================================================
+# GitHub CLI Vulnerabilities
+# =============================================================================
+
+# (Add as needed)
+
+# =============================================================================
+# Instructions
+# =============================================================================
+#
+# When adding exceptions:
+# 1. Run: trivy image --severity HIGH,CRITICAL <image-name>
+# 2. For each vulnerability:
+#    a. Assess if it affects this use case
+#    b. Check if patch is available
+#    c. If accepting risk, document here with justification
+# 3. Review exceptions quarterly
+# 4. Remove exceptions when patches available
+#
+# Example entry:
+#   # CVE-2024-12345
+#   # Package: example-package@1.2.3
+#   # Severity: MEDIUM
+#   # Justification: False positive - feature not used in dev containers
+#   # Reviewed: 2025-11-22
+#   # Next Review: 2026-02-22
+#   CVE-2024-12345
+#
+# =============================================================================
+
+# Currently no exceptions - add after first Trivy scan
