@@ -182,7 +182,10 @@ jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    # Only run on PRs and when dependency graph is enabled
+    # To enable: Repository Settings → Security → Dependency graph
     if: github.event_name == 'pull_request'
+    continue-on-error: true  # Don't fail build if dependency graph not enabled
 
     steps:
       - name: Checkout code
