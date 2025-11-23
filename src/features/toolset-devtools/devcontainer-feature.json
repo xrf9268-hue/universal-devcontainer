@@ -1,0 +1,53 @@
+{
+  "id": "toolset-devtools",
+  "version": "1.0.0",
+  "name": "Developer Tools Collection",
+  "description": "Essential CLI tools for modern development workflows",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/toolset-devtools",
+  "options": {
+    "includeTools": {
+      "type": "string",
+      "enum": ["all", "essential", "minimal"],
+      "default": "essential",
+      "description": "Which tools to install: all (everything), essential (common tools), minimal (basics only)"
+    },
+    "installLazygit": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install lazygit - Terminal UI for git"
+    },
+    "installBat": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install bat - cat with syntax highlighting"
+    },
+    "installFzf": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install fzf - Fuzzy finder"
+    },
+    "installHttpie": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install httpie - User-friendly HTTP client"
+    },
+    "installRipgrep": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install ripgrep (rg) - Fast grep alternative"
+    },
+    "installEza": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install eza - Modern ls replacement"
+    },
+    "installDelta": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install delta - Better git diff viewer"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "toolset-database",
+  "version": "1.0.0",
+  "name": "Database Tools Collection",
+  "description": "CLI tools for working with databases (PostgreSQL, MySQL, Redis, MongoDB)",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/toolset-database",
+  "options": {
+    "installPgcli": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install pgcli - PostgreSQL CLI with autocomplete"
+    },
+    "installMycli": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install mycli - MySQL/MariaDB CLI with autocomplete"
+    },
+    "installRedisCli": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install redis-cli - Redis command-line interface"
+    },
+    "installMongosh": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install mongosh - MongoDB Shell"
+    },
+    "installLitecli": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install litecli - SQLite CLI with autocomplete"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/python"
+  ]
+}

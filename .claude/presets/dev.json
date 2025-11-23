@@ -1,0 +1,57 @@
+{
+  "name": "Developer Mode",
+  "description": "Full trust - bypass all permissions for rapid development (trusted repos only!)",
+  "bypassPermissions": true,
+  "autoApprove": {
+    "read": ["**/*"],
+    "write": ["**/*"],
+    "execute": ["**/*"],
+    "network": ["**/*"]
+  },
+  "alwaysDeny": [
+    "**/.env",
+    "**/.env.*",
+    "**/secrets/**",
+    "**/*.key",
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.pfx",
+    "**/id_rsa",
+    "**/id_dsa",
+    "**/id_ecdsa",
+    "**/id_ed25519",
+    "**/.ssh/id_*",
+    "**/.aws/credentials",
+    "**/.config/gcloud/credentials.db"
+  ],
+  "requireApproval": {
+    "read": [],
+    "write": [],
+    "execute": [],
+    "network": []
+  },
+  "useCases": [
+    "Personal projects",
+    "Trusted repositories",
+    "Rapid prototyping",
+    "Learning and experimentation",
+    "Solo development",
+    "NEVER use with untrusted code!"
+  ],
+  "securityLevel": "minimal",
+  "recommended": false,
+  "warnings": [
+    "⚠️ USE ONLY FOR TRUSTED REPOSITORIES",
+    "⚠️ Claude can modify any file without asking",
+    "⚠️ Claude can execute any command",
+    "⚠️ Not suitable for open-source contributions",
+    "⚠️ Not suitable for enterprise environments"
+  ],
+  "notes": [
+    "This mode gives Claude full access to your project",
+    "Maximum productivity, minimal security",
+    "Protected files (secrets, keys) are still blocked",
+    "Great for personal projects where you trust Claude completely",
+    "Switch to 'safe' mode when working with untrusted code"
+  ]
+}

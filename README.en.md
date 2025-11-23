@@ -561,6 +561,110 @@ This project follows a multi-phase implementation plan. See [IMPLEMENTATION_PLAN
 
 ---
 
+---
+
+## 📚 Framework Examples and Toolsets
+
+### Framework Usage Examples
+
+We provide **7 complete framework examples** showing how to use Universal Dev Container with popular frameworks:
+
+**Frontend Frameworks**:
+- **[React + TypeScript](examples/react-app/)** - Vite + React 18 with HMR
+- **[Next.js 15](examples/nextjs-app/)** - App Router + Server Components
+
+**Backend Frameworks**:
+- **[Node.js + Express](examples/nodejs-express/)** - TypeScript API with hot reload
+- **[Python + FastAPI](examples/python-fastapi/)** - High-performance async API, auto docs
+- **[Python + Django](examples/python-django/)** - Full-stack framework with ORM
+- **[Go + Gin](examples/go-app/)** - High-performance Go web service
+
+Each example includes:
+- ✅ Complete `.devcontainer` configuration
+- ✅ Working example code
+- ✅ Claude Code integration
+- ✅ Framework-specific VS Code extensions
+- ✅ Detailed README and usage guide
+
+**See all examples**: [examples/README.md](examples/README.md)
+
+### Claude Code Permission Modes
+
+**4 preset permission modes** for different trust levels:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **ultra-safe** | Approve ALL operations | Untrusted code, security audits |
+| **safe** (recommended) | Allow reads, approve writes | General development, collaboration |
+| **dev** | Bypass all permissions | Personal trusted projects |
+| **review** | Read-only mode | Code review, documentation |
+
+**Quick mode switching**:
+```bash
+# Interactive selector
+scripts/configure-claude-mode.sh
+
+# Direct application
+scripts/configure-claude-mode.sh safe
+scripts/configure-claude-mode.sh dev
+
+# Check current mode
+scripts/configure-claude-mode.sh status
+```
+
+Preset files location: `.claude/presets/`
+
+### Optional Toolset Features
+
+**4 toolset Features** for installing common CLI tools on demand:
+
+#### 🛠️ Developer Tools (toolset-devtools)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-devtools:1": {
+      "includeTools": "all"  // all/essential/minimal
+    }
+  }
+}
+```
+Includes: `lazygit`, `bat`, `fzf`, `httpie`, `ripgrep`, `eza`, `delta`
+
+#### 🗄️ Database Tools (toolset-database)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-database:1": {}
+  }
+}
+```
+Includes: `pgcli`, `mycli`, `redis-cli`, `mongosh`, `litecli`
+
+#### ☁️ Cloud Platform Tools (toolset-cloud)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-cloud:1": {
+      "installGcloud": true,
+      "installAzureCli": true
+    }
+  }
+}
+```
+Includes: `aws`, `gcloud`, `az`, `doctl`
+
+#### ⚙️ Kubernetes Tools (toolset-kubernetes)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-kubernetes:1": {}
+  }
+}
+```
+Includes: `kubectl`, `helm`, `k9s`, `kubectx`, `kustomize`, `skaffold`
+
+**See detailed docs**: [src/features/](src/features/)
+
 ## 🔄 Updates and Maintenance
 
 ### Incremental Updates (No Container Rebuild)

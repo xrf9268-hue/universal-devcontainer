@@ -460,6 +460,110 @@ chmod o+rx /Users/<username>/developer/<project>
 
 ---
 
+---
+
+## 📚 框架示例和工具集
+
+### 框架使用示例
+
+我们提供了 **7 个完整的框架示例**，展示如何将 Universal Dev Container 与流行框架结合使用：
+
+**前端框架**:
+- **[React + TypeScript](examples/react-app/)** - Vite + React 18，热模块替换
+- **[Next.js 15](examples/nextjs-app/)** - App Router + 服务器组件
+
+**后端框架**:
+- **[Node.js + Express](examples/nodejs-express/)** - TypeScript API，支持热重载
+- **[Python + FastAPI](examples/python-fastapi/)** - 高性能异步 API，自动文档
+- **[Python + Django](examples/python-django/)** - 完整 Web 框架，内置 ORM
+- **[Go + Gin](examples/go-app/)** - 高性能 Go Web 服务
+
+每个示例包含：
+- ✅ 完整的 `.devcontainer` 配置
+- ✅ 可运行的示例代码
+- ✅ Claude Code 集成
+- ✅ 框架特定的 VS Code 扩展
+- ✅ 详细的 README 和使用说明
+
+**查看所有示例**: [examples/README.md](examples/README.md)
+
+### Claude Code 权限模式
+
+提供 **4 种预设权限模式**，适应不同信任级别的项目：
+
+| 模式 | 说明 | 适用场景 |
+|------|------|----------|
+| **ultra-safe** | 所有操作需批准 | 不可信代码、安全审计 |
+| **safe** (推荐) | 允许读取，写入需批准 | 一般开发、协作项目 |
+| **dev** | 绕过所有权限 | 个人可信项目 |
+| **review** | 只读模式 | 代码审查、文档生成 |
+
+**快速切换模式**:
+```bash
+# 交互式选择
+scripts/configure-claude-mode.sh
+
+# 直接应用
+scripts/configure-claude-mode.sh safe
+scripts/configure-claude-mode.sh dev
+
+# 查看当前模式
+scripts/configure-claude-mode.sh status
+```
+
+预设文件位置: `.claude/presets/`
+
+### 可选工具集 Features
+
+提供 **4 个工具集 Features**，按需安装常用 CLI 工具：
+
+#### 🛠️ 开发工具集 (toolset-devtools)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-devtools:1": {
+      "includeTools": "all"  // all/essential/minimal
+    }
+  }
+}
+```
+包含: `lazygit`, `bat`, `fzf`, `httpie`, `ripgrep`, `eza`, `delta`
+
+#### 🗄️ 数据库工具集 (toolset-database)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-database:1": {}
+  }
+}
+```
+包含: `pgcli`, `mycli`, `redis-cli`, `mongosh`, `litecli`
+
+#### ☁️ 云平台工具集 (toolset-cloud)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-cloud:1": {
+      "installGcloud": true,
+      "installAzureCli": true
+    }
+  }
+}
+```
+包含: `aws`, `gcloud`, `az`, `doctl`
+
+#### ⚙️ Kubernetes 工具集 (toolset-kubernetes)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-kubernetes:1": {}
+  }
+}
+```
+包含: `kubectl`, `helm`, `k9s`, `kubectx`, `kustomize`, `skaffold`
+
+**查看详细文档**: [src/features/](src/features/)
+
 ## 🔄 更新和维护
 
 ### 增量更新（无需重建容器）
