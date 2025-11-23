@@ -95,8 +95,6 @@ get_mode_details() {
     # Extract and display details using jq
     if command -v jq &> /dev/null; then
         local description
-        local use_cases
-        local notes
 
         description=$(jq -r '.description' "$preset_file")
         echo -e "${BLUE}Description:${NC}"
@@ -151,9 +149,6 @@ apply_mode() {
     # For a complete replacement, just copy the preset file
     if command -v jq &> /dev/null; then
         # Merge preset into settings
-        local bypass_perms
-        bypass_perms=$(jq -r '.bypassPermissions' "$preset_file")
-
         # Read existing settings or create empty object
         local existing_settings="{}"
         if [ -f "$SETTINGS_FILE" ]; then
