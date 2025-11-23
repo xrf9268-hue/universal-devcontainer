@@ -3,7 +3,9 @@
 # Build: docker build -t ghcr.io/xrf9268-hue/universal-devcontainer:latest .
 # Push: docker push ghcr.io/xrf9268-hue/universal-devcontainer:latest
 
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+# Pin to specific version tag (1-ubuntu-22.04) for reproducibility
+# To pin by SHA, run: docker pull mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04 && docker inspect --format='{{index .RepoDigests 0}}' mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04
+FROM mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04
 
 # Metadata
 LABEL org.opencontainers.image.source="https://github.com/xrf9268-hue/universal-devcontainer"

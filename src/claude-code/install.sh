@@ -11,7 +11,10 @@ ORG_UUID="${ORGUUID:-}"
 echo "[claude-code-feature] Installing Claude Code CLI..."
 
 # Install Claude Code globally
-npm install -g @anthropic-ai/claude-code
+# Pin to stable 1.x series (allows minor/patch updates)
+# For exact version pinning, use: npm install -g @anthropic-ai/claude-code@1.0.58
+# To get latest version: npm view @anthropic-ai/claude-code version
+npm install -g @anthropic-ai/claude-code@^1.0.0
 
 # Determine target user (respect _REMOTE_USER or default to vscode)
 TARGET_USER="${_REMOTE_USER:-vscode}"

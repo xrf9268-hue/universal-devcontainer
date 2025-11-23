@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+# Pin to specific version tag (1-ubuntu-22.04) for reproducibility
+# To pin by SHA, run: docker pull mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04 && docker inspect --format='{{index .RepoDigests 0}}' mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04
+FROM mcr.microsoft.com/devcontainers/base:1-ubuntu-22.04
 
 # Accept timezone and proxy settings as build arguments
 ARG TZ

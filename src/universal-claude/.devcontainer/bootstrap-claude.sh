@@ -2,7 +2,10 @@
 set -euo pipefail
 
 echo "[bootstrap] Installing Claude Code CLI..."
-npm i -g @anthropic-ai/claude-code
+# Pin to stable 1.x series (allows minor/patch updates)
+# For exact version pinning, use: npm i -g @anthropic-ai/claude-code@1.0.58
+# To get latest version: npm view @anthropic-ai/claude-code version
+npm i -g @anthropic-ai/claude-code@^1.0.0
 
 CLAUDE_HOME="$HOME/.claude"
 HOST_CLAUDE_DIR="/host-claude"
