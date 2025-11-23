@@ -20,13 +20,13 @@ START_TIME=$(date +%s)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to run a test
 run_test() {
     local test_script="$1"
-    local example_name=$(basename "$(dirname "$test_script")")
+    local example_name
+    example_name=$(basename "$(dirname "$test_script")")
 
     echo ""
     echo "╔══════════════════════════════════════════════════════════════════╗"
@@ -34,16 +34,19 @@ run_test() {
     echo "╚══════════════════════════════════════════════════════════════════╝"
     echo ""
 
-    local test_start=$(date +%s)
+    local test_start
+    test_start=$(date +%s)
 
     if bash "$test_script"; then
-        local test_end=$(date +%s)
+        local test_end
+        test_end=$(date +%s)
         local duration=$((test_end - test_start))
         PASSED_TESTS+=("$example_name (${duration}s)")
         echo -e "${GREEN}✅ $example_name - PASSED${NC} (${duration}s)"
         return 0
     else
-        local test_end=$(date +%s)
+        local test_end
+        test_end=$(date +%s)
         local duration=$((test_end - test_start))
         FAILED_TESTS+=("$example_name (${duration}s)")
         echo -e "${RED}❌ $example_name - FAILED${NC} (${duration}s)"
@@ -58,6 +61,7 @@ echo ""
 TEST_SCRIPTS=()
 while IFS= read -r -d '' test_script; do
     TEST_SCRIPTS+=("$test_script")
+    local example_name
     example_name=$(basename "$(dirname "$test_script")")
     echo "   Found: $example_name"
 done < <(find "$PROJECT_ROOT/examples" -name "test.sh" -type f -print0 | sort -z)
