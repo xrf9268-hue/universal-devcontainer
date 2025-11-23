@@ -192,13 +192,14 @@ Choose from predefined plugin sets:
 }
 ```
 
-### Example 5: Both Official and Community Plugins
+### Example 5: Community Plugins Only (Recommended)
 
 ```json
 {
   "features": {
     "ghcr.io/xrf9268-hue/features/claude-code:1": {
-      "installPlugins": "commit-commands,pr-review-toolkit"
+      "loginMethod": "host"
+      // Note: installPlugins defaults to "" (no official plugins)
     },
     "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
       "installPlugins": "custom",
@@ -207,6 +208,26 @@ Choose from predefined plugin sets:
   }
 }
 ```
+
+## Why Use Community Plugins Instead of Official?
+
+The community plugins are **enhanced versions** of the official plugins with significantly more features:
+
+| Plugin | Official Version | Community Version |
+|--------|------------------|-------------------|
+| **commit-commands** | Basic git helpers | `/commit`, `/commit-push-pr`, `/clean_gone` automation |
+| **pr-review-toolkit** | Basic review tools | 6 specialized agents with detailed analysis |
+| **security-guidance** | Basic best practices | 17 comprehensive security rules with proactive validation |
+
+**Plus 6 additional plugins** only available in community marketplace:
+- **agent-sdk-dev** - Claude Agent SDK development tools
+- **feature-dev** - 7-phase structured feature development
+- **plugin-developer-toolkit** - Create your own plugins
+- **context-preservation** - Auto-save context before compaction
+- **frontend-dev-guidelines** - React/TypeScript best practices
+- **code-review** - Automated PR review with confidence scoring
+
+**Recommendation**: Always use community plugins unless you have a specific reason to use official versions.
 
 ## Plugin Descriptions
 

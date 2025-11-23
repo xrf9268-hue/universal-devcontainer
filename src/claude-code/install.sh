@@ -4,7 +4,7 @@ set -euo pipefail
 # Feature options (automatically uppercased by Dev Container CLI)
 LOGIN_METHOD="${LOGINMETHOD:-host}"
 BYPASS_PERMS="${BYPASSPERMISSIONS:-true}"
-PLUGINS="${INSTALLPLUGINS:-commit-commands,pr-review-toolkit,security-guidance}"
+PLUGINS="${INSTALLPLUGINS:-}"
 ENABLE_SANDBOX="${ENABLESANDBOX:-false}"
 ORG_UUID="${ORGUUID:-}"
 
@@ -158,7 +158,7 @@ fi
 echo "[claude-code-feature] ✅ Installation complete!"
 echo "  - Permission mode: $PERM_MODE"
 echo "  - Login method: $LOGIN_METHOD"
-echo "  - Plugins: $PLUGINS"
+echo "  - Plugins: ${PLUGINS:-none (use claude-code-plugins feature for enhanced plugins)}"
 [[ "$ENABLE_SANDBOX" = "true" ]] && echo "  - Sandbox: enabled"
 [[ -n "$ORG_UUID" ]] && echo "  - Organization: $ORG_UUID"
 

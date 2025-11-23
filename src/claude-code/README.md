@@ -31,8 +31,10 @@ Add to your `devcontainer.json`:
     "ghcr.io/xrf9268-hue/features/claude-code:1": {
       "loginMethod": "host",
       "bypassPermissions": true,
-      "installPlugins": "commit-commands,pr-review-toolkit",
       "enableSandbox": false
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"
     }
   }
 }
@@ -44,7 +46,7 @@ Add to your `devcontainer.json`:
 |--------|------|---------|-------------|
 | `loginMethod` | string | `host` | Authentication method: `host`, `api-key`, or `manual` |
 | `bypassPermissions` | boolean | `true` | Auto-approve file operations (use with trusted repos only!) |
-| `installPlugins` | string | `commit-commands,pr-review-toolkit,security-guidance` | Comma-separated plugin list |
+| `installPlugins` | string | `""` | Comma-separated plugin list from official marketplace. **Recommended: Use `claude-code-plugins` feature for enhanced community plugins** |
 | `enableSandbox` | boolean | `false` | Enable command execution sandbox |
 | `orgUUID` | string | `""` | Force specific Claude organization UUID |
 
@@ -80,21 +82,38 @@ Add to your `devcontainer.json`:
 
 ### installPlugins
 
-Comma-separated list of plugins from the `claude-code-plugins` marketplace.
+> **⚠️ DEPRECATION NOTICE**: Official marketplace plugins are basic versions.
+> **Recommended**: Use the `claude-code-plugins` feature for enhanced community plugins with more features.
 
-**Default plugins**:
-- `commit-commands` - Git commit helpers
-- `pr-review-toolkit` - Pull request review tools
-- `security-guidance` - Security best practices
+**Default**: Empty (no plugins installed)
 
-**Custom plugins**:
+**Official plugins** (basic versions, not recommended):
+- `commit-commands` - Git commit helpers (limited features)
+- `pr-review-toolkit` - Pull request review tools (basic)
+- `security-guidance` - Security best practices (basic)
+
+**Recommended alternative** - Use community plugins instead:
 ```json
 {
-  "installPlugins": "custom-plugin-1,custom-plugin-2"
+  "features": {
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {
+      "loginMethod": "host"
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"
+    }
+  }
 }
 ```
 
-**No plugins**:
+**To use official plugins explicitly** (not recommended):
+```json
+{
+  "installPlugins": "commit-commands,pr-review-toolkit,security-guidance"
+}
+```
+
+**No plugins** (default):
 ```json
 {
   "installPlugins": ""
@@ -213,14 +232,17 @@ claude login
 }
 ```
 
-### API Key with Custom Plugins
+### API Key with Community Plugins
 
 ```json
 {
   "features": {
     "ghcr.io/xrf9268-hue/features/claude-code:1": {
-      "loginMethod": "api-key",
-      "installPlugins": "commit-commands,custom-linter"
+      "loginMethod": "api-key"
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "custom",
+      "customPlugins": "commit-commands,feature-dev,security-guidance"
     }
   },
   "remoteEnv": {

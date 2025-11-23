@@ -341,14 +341,13 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 
 ## 内置功能
 
-### 预装插件
-- `commit-commands` — 提交辅助
-- `pr-review-toolkit` — PR 审查
-- `security-guidance` — 安全指导
+### Claude Code 插件
 
-#### 🚀 高级插件（可选）
+> **⚠️ 重要变更 (v2.2.0+)**: 官方插件已不再默认安装。**推荐使用社区插件**，它们提供增强的功能和更多特性。
 
-从 v2.2.0 开始，我们提供 **`claude-code-plugins` Feature**，支持来自社区市场的 9 个高级插件：
+#### 🚀 推荐：社区插件
+
+从 v2.2.0 开始，我们提供 **`claude-code-plugins` Feature**，支持来自社区市场的 9 个增强版插件：
 
 **安装方式**：在 `.devcontainer/devcontainer.json` 中添加：
 

@@ -38,23 +38,27 @@ code .
 ### Claude Code Integration
 - ✅ Host authentication method (uses your local Claude login)
 - ✅ Bypass permissions (trusted repo mode)
-- ✅ Plugins: commit-commands, pr-review-toolkit
+- ✅ Community plugins (essential): commit-commands, code-review, security-guidance, context-preservation
 
-#### 🚀 Advanced Plugins Option
+#### 🚀 Want More Plugins?
 
-Want more powerful Claude Code features? Use the **advanced plugins** configuration:
+The **essential** plugin set includes the most important tools. For frontend-specific features, use a custom plugin configuration:
 
-```bash
-# Rename the advanced config to use it
-mv .devcontainer/devcontainer.advanced-plugins.json .devcontainer/devcontainer.json
+```json
+{
+  "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+    "installPlugins": "custom",
+    "customPlugins": "commit-commands,code-review,security-guidance,context-preservation,frontend-dev-guidelines"
+  }
+}
 ```
 
-The advanced configuration includes:
+Additional plugins available:
 - **frontend-dev-guidelines** - React/TypeScript best practices
-- **code-review** - Automated PR review with confidence scoring
-- **security-guidance** - Proactive security warnings
-- **context-preservation** - Auto-save important context
-- **commit-commands** - Git workflow automation
+- **feature-dev** - 7-phase structured development
+- **agent-sdk-dev** - SDK development tools
+- **pr-review-toolkit** - 6 specialized review agents
+- **plugin-developer-toolkit** - Create your own plugins
 
 See [claude-code-plugins documentation](../../src/features/claude-code-plugins/README.md) for details.
 

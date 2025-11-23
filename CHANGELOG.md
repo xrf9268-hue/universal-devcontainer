@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+
+**🚨 Default Plugin Installation Removed**
+- **Changed**: `claude-code` feature no longer installs official plugins by default
+- **Before**: Automatically installed `commit-commands`, `pr-review-toolkit`, `security-guidance`
+- **After**: No plugins installed by default (empty `installPlugins` default)
+- **Reason**: Community plugins (`claude-code-plugins`) provide superior versions with more features
+- **Migration**: Use `claude-code-plugins` feature with `installPlugins: "essential"` (recommended)
+- **Documentation**: See [MIGRATION.md](MIGRATION.md) for detailed migration guide
+- **Impact**: Users relying on default plugins need to add `claude-code-plugins` feature or explicitly set `installPlugins`
+
 ### Added
 
 **Claude Code Advanced Plugins Feature**
@@ -46,6 +57,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature README: `src/features/claude-code-plugins/README.md`
 - Updated main README (Chinese and English)
 - Plugin integration examples
+
+### Changed
+
+**Claude Code Feature (`src/claude-code/`)**
+- Default `installPlugins` option changed from `"commit-commands,pr-review-toolkit,security-guidance"` to `""`
+- Updated documentation to recommend `claude-code-plugins` feature
+- Added deprecation notice for official marketplace plugins
+- Updated install script to display message when no plugins are installed
+- Feature schema now recommends using community plugins in description
+
+**Examples**
+- `examples/nextjs-app/`: Migrated to community plugins (essential set)
+- `examples/react-app/`: Migrated to community plugins (essential set)
+- `examples/with-advanced-plugins/`: Added note that this is now the recommended standard pattern
+- All examples now demonstrate best practice with `claude-code-plugins` feature
+
+**Documentation**
+- `src/claude-code/README.md`: Added deprecation notice and community plugin recommendations
+- `src/features/claude-code-plugins/README.md`: Added comparison table showing community plugin advantages
+- Added [MIGRATION.md](MIGRATION.md) with comprehensive migration guide
+- Updated all example READMEs to reflect new plugin configuration
+- README.md (Chinese) and README.en.md (English): Updated to clarify official plugins no longer default
+
+### Rationale
+
+The official marketplace plugins are basic versions. Community plugins offer:
+- **Enhanced features**: More commands, agents, and capabilities
+  - commit-commands: 3 workflow commands vs basic helpers
+  - pr-review-toolkit: 6 specialized agents vs basic tools
+  - security-guidance: 17 comprehensive rules vs basic guidance
+- **Better security**: Proactive validation with PreToolUse hooks
+- **Additional plugins**: 6 specialized plugins not available in official marketplace
+  - agent-sdk-dev, feature-dev, plugin-developer-toolkit, context-preservation, frontend-dev-guidelines, code-review
+- **Active development**: More frequent updates and improvements
+- **No redundancy**: Single source of truth for plugin management
+
+**Backward Compatibility**: Users who prefer official plugins can still use them by explicitly setting:
+```json
+{
+  "installPlugins": "commit-commands,pr-review-toolkit,security-guidance"
+}
+```
 
 ## [2.1.0] - 2025-11-23
 
