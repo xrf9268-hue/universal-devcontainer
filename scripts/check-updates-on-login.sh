@@ -17,8 +17,10 @@ check_updates_quick() {
 
     # Check if we've checked recently
     if [[ -f "$last_check_file" ]]; then
-        local last_check=$(cat "$last_check_file")
-        local now=$(date +%s)
+        local last_check
+        last_check=$(cat "$last_check_file")
+        local now
+        now=$(date +%s)
         local diff=$((now - last_check))
 
         if [[ $diff -lt $check_interval ]]; then
@@ -28,7 +30,8 @@ check_updates_quick() {
 
     # Only show message if version file exists
     if [[ -f "$version_file" ]]; then
-        local current_version=$(cat "$version_file")
+        local current_version
+        current_version=$(cat "$version_file")
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "  Universal Dev Container v$current_version"

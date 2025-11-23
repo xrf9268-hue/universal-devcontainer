@@ -75,8 +75,10 @@ show_status() {
     log_info "Checking for updates..."
     echo ""
 
-    local current_version=$(get_current_version)
-    local remote_version=$(get_remote_version)
+    local current_version
+    current_version=$(get_current_version)
+    local remote_version
+    remote_version=$(get_remote_version)
 
     echo "  Current version: $current_version"
     echo "  Latest version:  $remote_version"
@@ -98,7 +100,8 @@ show_status() {
 create_backup() {
     log_info "Creating backup..."
 
-    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
     local backup_path="$BACKUP_DIR/$timestamp"
 
     mkdir -p "$backup_path"
@@ -121,7 +124,8 @@ update_configs() {
         cd /universal
         git fetch origin
 
-        local current_branch=$(git rev-parse --abbrev-ref HEAD)
+        local current_branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
         log_info "Updating from branch: $current_branch"
 
         git pull origin "$current_branch"
@@ -139,14 +143,16 @@ update_claude_cli() {
     log_info "Checking Claude Code CLI..."
 
     if command -v claude >/dev/null 2>&1; then
-        local current_claude=$(claude --version 2>/dev/null | head -1 || echo "unknown")
+        local current_claude
+        current_claude=$(claude --version 2>/dev/null | head -1 || echo "unknown")
         echo "  Current: $current_claude"
 
         read -p "Update Claude Code CLI? [y/N]: " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             npm update -g @anthropic-ai/claude-code
-            local new_claude=$(claude --version 2>/dev/null | head -1 || echo "unknown")
+            local new_claude
+            new_claude=$(claude --version 2>/dev/null | head -1 || echo "unknown")
             log_success "✓ Claude Code CLI updated: $new_claude"
         else
             log_info "Skipped Claude Code CLI update"
@@ -161,7 +167,8 @@ update_plugins() {
     log_info "Checking Claude Code plugins..."
 
     if [[ -f ~/.claude/settings.json ]]; then
-        local enabled_plugins=$(jq -r '.enabledPlugins | keys[]' ~/.claude/settings.json 2>/dev/null || echo "")
+        local enabled_plugins
+        enabled_plugins=$(jq -r '.enabledPlugins | keys[]' ~/.claude/settings.json 2>/dev/null || echo "")
 
         if [[ -n "$enabled_plugins" ]]; then
             echo "  Enabled plugins:"
@@ -195,7 +202,8 @@ show_changelog() {
 
     if command -v curl >/dev/null 2>&1 && [[ "$to_version" != "unknown" ]]; then
         local changelog_url="https://api.github.com/repos/xrf9268-hue/universal-devcontainer/releases/tags/$to_version"
-        local changelog=$(curl -s "$changelog_url" | jq -r '.body' 2>/dev/null || echo "")
+        local changelog
+        changelog=$(curl -s "$changelog_url" | jq -r '.body' 2>/dev/null || echo "")
 
         if [[ -n "$changelog" && "$changelog" != "null" ]]; then
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -222,7 +230,8 @@ rollback() {
         return 1
     fi
 
-    local backups=($(ls -1t "$BACKUP_DIR"))
+    local backups
+    mapfile -t backups < <(ls -1t "$BACKUP_DIR")
     local i=1
     for backup in "${backups[@]}"; do
         echo "  $i) $backup"
@@ -255,8 +264,10 @@ rollback() {
 
 # Main update flow
 do_update() {
-    local current_version=$(get_current_version)
-    local remote_version=$(get_remote_version)
+    local current_version
+    current_version=$(get_current_version)
+    local remote_version
+    remote_version=$(get_remote_version)
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -280,7 +291,8 @@ do_update() {
     fi
 
     # Create backup before updating
-    local backup_path=$(create_backup)
+    local backup_path
+    backup_path=$(create_backup)
 
     # Update components
     update_configs || log_warning "⚠ Config update failed"
