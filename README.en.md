@@ -288,6 +288,44 @@ Firewall will additionally allow these domains.
 - `pr-review-toolkit` — PR review
 - `security-guidance` — Security guidance
 
+#### 🚀 Advanced Plugins (Optional)
+
+Starting from v2.2.0, we provide the **`claude-code-plugins` Feature**, supporting 9 advanced plugins from the community marketplace:
+
+**Installation**: Add to `.devcontainer/devcontainer.json`:
+
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {},
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"
+    }
+  }
+}
+```
+
+**Available Plugin Sets**:
+- **essential** (recommended): commit-commands, code-review, security-guidance, context-preservation
+- **all**: All 9 plugins
+- **development**: agent-sdk-dev, feature-dev, plugin-developer-toolkit
+- **review**: code-review, pr-review-toolkit
+- **security**: security-guidance
+- **custom**: Custom plugin list
+
+**Plugin List**:
+1. **agent-sdk-dev** - Claude Agent SDK development tools
+2. **commit-commands** - Git workflow automation
+3. **code-review** - Automated PR review with confidence scoring
+4. **feature-dev** - 7-phase structured feature development
+5. **security-guidance** - Proactive security warnings (17 rules)
+6. **context-preservation** - Auto-save context before compaction
+7. **frontend-dev-guidelines** - React/TypeScript best practices
+8. **pr-review-toolkit** - 6 specialized review agents
+9. **plugin-developer-toolkit** - Create your own plugins
+
+**Documentation**: See [`src/features/claude-code-plugins/README.md`](src/features/claude-code-plugins/README.md)
+
 **Plugin Troubleshooting**: If `/doctor` shows plugin "not found in marketplace":
 
 ```bash

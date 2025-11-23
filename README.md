@@ -275,6 +275,44 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 - `pr-review-toolkit` — PR 审查
 - `security-guidance` — 安全指导
 
+#### 🚀 高级插件（可选）
+
+从 v2.2.0 开始，我们提供 **`claude-code-plugins` Feature**，支持来自社区市场的 9 个高级插件：
+
+**安装方式**：在 `.devcontainer/devcontainer.json` 中添加：
+
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {},
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"
+    }
+  }
+}
+```
+
+**可用插件集**：
+- **essential**（推荐）：commit-commands, code-review, security-guidance, context-preservation
+- **all**：全部 9 个插件
+- **development**：agent-sdk-dev, feature-dev, plugin-developer-toolkit
+- **review**：code-review, pr-review-toolkit
+- **security**：security-guidance
+- **custom**：自定义插件列表
+
+**插件列表**：
+1. **agent-sdk-dev** - Claude Agent SDK 开发工具
+2. **commit-commands** - Git 工作流自动化
+3. **code-review** - 自动化 PR 审查（置信度评分）
+4. **feature-dev** - 7 阶段结构化功能开发
+5. **security-guidance** - 主动安全警告（17 条规则）
+6. **context-preservation** - 自动保存上下文
+7. **frontend-dev-guidelines** - React/TypeScript 最佳实践
+8. **pr-review-toolkit** - 6 个专业审查代理
+9. **plugin-developer-toolkit** - 创建你自己的插件
+
+**详细文档**：见 [`src/features/claude-code-plugins/README.md`](src/features/claude-code-plugins/README.md)
+
 **插件故障排查**：如果 `/doctor` 显示插件 "not found in marketplace"：
 
 ```bash
@@ -511,7 +549,21 @@ scripts/configure-claude-mode.sh status
 
 ### 可选工具集 Features
 
-提供 **4 个工具集 Features**，按需安装常用 CLI 工具：
+提供 **5 个功能 Features**，按需安装常用工具和插件：
+
+#### 🔌 Claude Code 高级插件 (claude-code-plugins)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"  // essential/all/development/review/security/custom/none
+    }
+  }
+}
+```
+包含: 9 个社区插件，涵盖开发、审查、安全等功能
+
+详见: [src/features/claude-code-plugins/README.md](src/features/claude-code-plugins/README.md)
 
 #### 🛠️ 开发工具集 (toolset-devtools)
 ```json
