@@ -32,7 +32,9 @@ fi
 # Install Azure CLI
 if [ "$INSTALL_AZURE_CLI" = "true" ]; then
     echo "Installing Azure CLI..."
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    curl -sL https://aka.ms/InstallAzureCLIDeb -o /tmp/install-azure-cli.sh
+    bash /tmp/install-azure-cli.sh
+    rm /tmp/install-azure-cli.sh
 fi
 
 # Install DigitalOcean CLI

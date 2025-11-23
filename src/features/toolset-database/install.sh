@@ -19,13 +19,13 @@ fi
 # Install pgcli
 if [ "$INSTALL_PGCLI" = "true" ]; then
     echo "Installing pgcli..."
-    pip3 install --no-cache-dir pgcli
+    pip3 install --no-cache-dir pgcli==4.0.1
 fi
 
 # Install mycli
 if [ "$INSTALL_MYCLI" = "true" ]; then
     echo "Installing mycli..."
-    pip3 install --no-cache-dir mycli
+    pip3 install --no-cache-dir mycli==1.27.0
 fi
 
 # Install redis-cli
@@ -46,7 +46,7 @@ fi
 # Install litecli
 if [ "$INSTALL_LITECLI" = "true" ]; then
     echo "Installing litecli..."
-    pip3 install --no-cache-dir litecli
+    pip3 install --no-cache-dir litecli==1.11.0
 fi
 
 apt-get clean

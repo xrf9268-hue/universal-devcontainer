@@ -24,7 +24,9 @@ fi
 # Install Helm
 if [ "$INSTALL_HELM" = "true" ]; then
     echo "Installing Helm..."
-    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get-helm-3.sh
+    bash /tmp/get-helm-3.sh
+    rm /tmp/get-helm-3.sh
 fi
 
 # Install k9s
@@ -45,8 +47,10 @@ fi
 # Install kustomize
 if [ "$INSTALL_KUSTOMIZE" = "true" ]; then
     echo "Installing kustomize..."
-    curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+    curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" -o /tmp/install_kustomize.sh
+    bash /tmp/install_kustomize.sh
     mv kustomize /usr/local/bin/
+    rm /tmp/install_kustomize.sh
 fi
 
 # Install skaffold
