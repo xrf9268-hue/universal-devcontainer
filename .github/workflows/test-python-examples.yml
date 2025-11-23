@@ -1,0 +1,126 @@
+name: Test Python Examples
+
+on:
+  push:
+    branches: [main, master, claude/**]
+    paths:
+      - 'examples/python-*/**'
+      - 'scripts/test-all-examples.sh'
+      - '.github/workflows/test-python-examples.yml'
+  pull_request:
+    paths:
+      - 'examples/python-*/**'
+      - 'scripts/test-all-examples.sh'
+      - '.github/workflows/test-python-examples.yml'
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:  # Allow manual triggers
+
+# Restrict permissions to minimum required (security best practice)
+permissions:
+  contents: read
+
+jobs:
+  test-python-examples:
+    name: Test ${{ matrix.example }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - python-django
+          - python-fastapi
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c  # v5.0.0
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: examples/${{ matrix.example }}/requirements.txt
+
+      - name: Display Python version
+        run: python --version
+
+      - name: Run ${{ matrix.example }} tests
+        run: |
+          cd examples/${{ matrix.example }}
+          chmod +x test.sh
+          ./test.sh
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8  # v4.3.0
+        with:
+          name: test-results-${{ matrix.example }}
+          path: examples/${{ matrix.example }}/test-*.log
+          retention-days: 7
+
+  test-all-examples:
+    name: Integration Test Runner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: test-python-examples
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c  # v5.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Run integration tests
+        run: |
+          chmod +x scripts/test-all-examples.sh
+          ./scripts/test-all-examples.sh
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8  # v4.3.0
+        with:
+          name: integration-test-results
+          path: |
+            scripts/*.log
+            examples/*/test-*.log
+          retention-days: 7
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: [test-python-examples, test-all-examples]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.test-python-examples.result }}" == "success" ] && [ "${{ needs.test-all-examples.result }}" == "success" ]; then
+            echo "✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Python examples: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Integration tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- ${{ needs.test-python-examples.result == 'success' && '✅' || '❌' }} Python examples: ${{ needs.test-python-examples.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- ${{ needs.test-all-examples.result == 'success' && '✅' || '❌' }} Integration tests: ${{ needs.test-all-examples.result }}" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
