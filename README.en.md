@@ -1,7 +1,7 @@
 # Universal Dev Container — Claude Code Development Environment
 
 > Reusable Dev Container configuration with integrated Claude Code, firewall, and proxy support.
-> **bypassPermissions** enabled by default — for **trusted repositories** and **isolated environments** only.
+> ⚠️ **bypassPermissions** enabled by default — see [Security Notice](#security-notice-) for usage restrictions.
 
 **Languages**: [English](README.en.md) | [中文](README.md)
 
@@ -19,6 +19,36 @@ A pre-configured development container environment featuring:
 
 ---
 
+## 📋 Quick Reference
+
+<details open>
+<summary><b>Common Commands Cheat Sheet</b></summary>
+
+```bash
+# Quick Start (Recommended)
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
+
+# Verify Installation
+claude /doctor                    # Check Claude Code status
+claude /permissions               # View permissions mode
+node -v && python3 --version      # Check development tools
+
+# Troubleshooting
+echo $PROJECT_PATH                # Check if project path is set
+grep ' /workspace ' /proc/mounts  # Verify workspace mount (inside container)
+```
+
+**Key Paths**:
+- Your project: `/workspace`
+- Tool scripts: `/universal`
+- Claude config: `~/.claude/settings.json`
+
+**Quick Jump**:
+- [Quick Start](#quick-start-) | [Troubleshooting](#troubleshooting) | [Security Notice](#security-notice-) | [Performance](#-performance-optimization)
+</details>
+
+---
+
 ## Prerequisites
 
 - VS Code ≥ 1.105 + Dev Containers extension ≥ 0.427
@@ -29,12 +59,76 @@ A pre-configured development container environment featuring:
 
 ---
 
+## 🏗️ Architecture Overview
+
+<details>
+<summary><b>View System Architecture</b></summary>
+
+```mermaid
+graph TB
+    subgraph Host["Host Machine"]
+        VS["VS Code"]
+        Claude_Host["~/.claude/<br/>(Claude Credentials)"]
+        Project["Your Project<br/>/path/to/project"]
+        Repo["This Repository<br/>universal-devcontainer"]
+    end
+
+    subgraph Container["Dev Container"]
+        Workspace["/workspace<br/>(Your Project)"]
+        Universal["/universal<br/>(Tools & Scripts)"]
+        Claude_Container["~/.claude/<br/>(Container Credentials)"]
+        Tools["Dev Tools<br/>Node.js, Python, etc."]
+        Firewall["Firewall<br/>(Whitelist)"]
+    end
+
+    subgraph External["External Services"]
+        Claude_AI["Claude AI<br/>api.anthropic.com"]
+        GitHub["GitHub<br/>github.com"]
+        NPM["NPM Registry<br/>npmjs.org"]
+    end
+
+    VS -->|Launches| Container
+    Project -->|Read-only Mount| Workspace
+    Repo -->|Read-only Mount| Universal
+    Claude_Host -->|Read-only Mount<br/>Copy Once| Claude_Container
+
+    Tools -.->|Accesses| Workspace
+    Tools -.->|Uses| Universal
+
+    Firewall -->|Allow HTTPS| Claude_AI
+    Firewall -->|Allow HTTPS| GitHub
+    Firewall -->|Allow HTTPS| NPM
+    Firewall -.->|Block Others| External
+
+    style Container fill:#e1f5ff
+    style Host fill:#fff4e6
+    style External fill:#f3e5f5
+    style Firewall fill:#ffebee
+```
+
+**Key Features**:
+- 🔒 **Read-only Mounts**: Host files protected
+- 🔑 **Credential Copy**: One-time copy from host to container
+- 🛡️ **Firewall**: Whitelist controls all egress traffic
+- 🚀 **Tool Isolation**: Container environment doesn't affect host
+
+</details>
+
+---
+
 ## Quick Start 🚀
 
-**Core Concept**: This repository provides a reusable Dev Container configuration that dynamically mounts your project via `workspaceMount` and directly reuses the host machine's Claude login state.
+**Choose your approach**:
+- **Method 1** (Shared Config): Reuse one config for multiple projects — ideal for temporary development, quick trials
+- **Method 2** (Standalone Config): Each project has its own config — ideal for new projects, team collaboration
 
-### Method 1: Using Script (Easiest) ⭐
+---
 
+### Method 1: Shared Configuration Mode (Recommended for Temporary Development) ⭐
+
+Use this repository to provide a unified Dev Container environment for multiple projects.
+
+**Quick Start**:
 ```bash
 # 1. Install and login to Claude Code on host (one-time only)
 npm i -g @anthropic-ai/claude-code
@@ -43,63 +137,34 @@ claude login
 # 2. Open container for any project
 /path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
 
-# Or in current directory
-cd /path/to/your/project
-/path/to/universal-devcontainer/scripts/open-project.sh .
-
 # Or clone from Git repository and develop directly
 /path/to/universal-devcontainer/scripts/open-project.sh https://github.com/owner/repo.git
 ```
 
 **How it Works**:
-1. Script sets `PROJECT_PATH` environment variable to your project
-2. Opens the universal-devcontainer directory (not your project directory)
-3. VS Code prompts "Reopen in Container"
-4. After container starts, your project is mounted at `/workspace`
+1. Script automatically sets `PROJECT_PATH` environment variable
+2. VS Code mounts your project to `/workspace` in container
+3. This repository tools mounted to `/universal`
 
----
+<details>
+<summary><b>Method 1 Alternatives</b> (without script)</summary>
 
-### Method 2: Manual Environment Variable Setup
-
-If you prefer not using the script:
-
+**Manual Environment Variable**:
 ```bash
-# 1. Set project path (required)
 export PROJECT_PATH=/path/to/your/project
-
-# 2. Ensure Claude Code is installed and logged in on host (one-time)
-npm i -g @anthropic-ai/claude-code
-claude login
-
-# 3. Open universal-devcontainer directory with VS Code
-code /path/to/universal-devcontainer
-
-# 4. In VS Code: Dev Containers: Reopen in Container
-```
-
----
-
-### Method 3: Developing the Container Itself
-
-If you want to develop universal-devcontainer itself in the container, also provide `PROJECT_PATH` (or use script):
-
-```bash
-# Method 1: Using script (recommended)
-/path/to/universal-devcontainer/scripts/open-project.sh /path/to/universal-devcontainer
-
-# Method 2: Manual environment variable
-export PROJECT_PATH=/path/to/universal-devcontainer
 code /path/to/universal-devcontainer
 # In VS Code: Dev Containers: Reopen in Container
 ```
 
-**Note**: To ensure compatibility and predictable behavior, this configuration uses "Approach A", mounting only when `PROJECT_PATH` is set.
+**Developing the Container Itself**:
+```bash
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/universal-devcontainer
+```
+</details>
 
-**Container Path Conventions**:
-- Your external project: `/workspace`
-- This repository (tools & scripts): `/universal`
+---
 
-### Method 4: Using Dev Container Template (Recommended for New Projects) 📦
+### Method 2: Standalone Configuration Mode (Recommended for New Projects) 📦
 
 **Use Case**: Create standalone Dev Container configuration for your own projects
 
@@ -427,61 +492,109 @@ Create `.devcontainer/devcontainer.json` in your project:
 
 ## Troubleshooting
 
-### Login Troubleshooting Card (Browser Auth/localhost Callback)
+### Startup Issues
 
-**Symptom**: Authorization page keeps spinning after clicking Authorize.
+#### "Workspace does not exist" Error
 
-**Quick Checklist**:
-- VS Code left panel "PORTS" → Check if container port appears (e.g., 41521), mapped to `localhost:<same-port>`.
-- Host browser or terminal direct connection to `http://127.0.0.1:<port>/` should return 404 (callback service is alive).
-- Host proxy bypass must include: `localhost, 127.0.0.1, ::1, host.docker.internal` (to avoid proxy/IPv6 interference).
+**Symptom**: Container fails to start with workspace mount error.
 
-**Detailed Steps & Common Proxy Examples** (Shadowrocket/Clash/Surge/SwitchyOmega/PAC): See docs/PROXY_SETUP.md section "Host Bypass (localhost Callback Required Reading)".
+**Cause**: VS Code process didn't inherit `PROJECT_PATH`, or Docker Desktop hasn't shared that path.
 
----
+**Solution**:
+- **Recommended**: Use script `scripts/open-project.sh /path/to/your/project` (automatically sets environment)
+- **Manual**: Execute from terminal: `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`
+- **Persistent**: Configure VS Code user settings:
+  ```jsonc
+  {
+    "dev.containers.defaultEnv": { "PROJECT_PATH": "/path/to/your/project" }
+  }
+  ```
 
-### Quick Troubleshooting Card: Opening Project (Workspace does not exist)
-
-**Recommended Startup Method**: `scripts/open-project.sh /path/to/your/project` (opens independent VS Code process for each project, ensuring `PROJECT_PATH` inheritance).
-
-**Manual Method**: From terminal execute `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer` (don't launch VS Code from Dock).
-
-**After Changes Rebuild**: VS Code → "Dev Containers: Rebuild Without Cache".
-
-**macOS Path Sharing**: Docker Desktop → Settings → Resources → File Sharing includes project parent directory (e.g., `/Users`).
+**macOS Specific**:
+- Docker Desktop → Settings → Resources → File Sharing
+- Ensure parent directory is shared (e.g., `/Users`)
 
 **Quick Self-Check**:
-- Host: `echo $PROJECT_PATH`, `test -d "$PROJECT_PATH" && echo OK || echo MISSING`
-- Inside container: Check startup banner (MOTD) or `grep ' /workspace ' /proc/mounts` to verify mount; script path is `/universal/.devcontainer/...`.
+- Host: `echo $PROJECT_PATH && test -d "$PROJECT_PATH" && echo OK || echo MISSING`
+- Container: Check MOTD banner or `grep ' /workspace ' /proc/mounts`
 
 ---
 
-### Issue: Container Cannot Access Internet
+### Authentication Issues
+
+#### Claude Code Login Fails (OAuth Callback)
+
+**Symptom**: Browser authorization page spins indefinitely after clicking Authorize.
+
+**Root Cause**: OAuth callback port not forwarded from container to host.
+
+**Quick Checklist**:
+- ✓ VS Code "PORTS" panel shows callback port (e.g., 41521) forwarded to localhost
+- ✓ Host proxy bypass includes: `localhost, 127.0.0.1, ::1, host.docker.internal`
+- ✓ Test callback service: `curl http://127.0.0.1:<port>/` (should return 404)
+
+**Solution**:
+1. **Auto-forwarding** (usually works automatically):
+   - Container has `remote.autoForwardPorts=true` enabled
+   - VS Code auto-forwards when service starts listening
+
+2. **Manual forwarding** (if auto-forward fails):
+   - Note port from auth URL (e.g., `http://localhost:63497/callback`)
+   - VS Code → PORTS panel → Forward Port → Enter port number
+
+3. **Alternative login** (bypass browser):
+   - Set `CLAUDE_LOGIN_METHOD=console` + `ANTHROPIC_API_KEY=sk-ant-...`
+   - Use API key authentication instead
+
+**Proxy Configuration**: See [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md) for detailed proxy bypass setup.
+
+---
+
+### Network Issues
+
+#### Container Cannot Access Internet
 
 **Checklist**:
-1. Firewall blocking needed domain? → Add to `EXTRA_ALLOW_DOMAINS`
-2. In restricted network? → Configure `HOST_PROXY_URL`, see [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
-3. Docker file sharing permissions (macOS): Docker Desktop → Resources → File Sharing includes `/Users`
+1. **Firewall blocking domain?**
+   - Add to `EXTRA_ALLOW_DOMAINS="gitlab.com myapi.com"`
+
+2. **Behind corporate proxy?**
+   - Configure `HOST_PROXY_URL=http://host.docker.internal:7890`
+   - See [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
+
+3. **Docker file sharing** (macOS):
+   - Docker Desktop → Resources → File Sharing
+   - Ensure `/Users` is included
 
 ---
 
-### Issue: Claude Code Plugin Not Found
+### Plugin and Extension Issues
 
+#### Claude Code Plugin Not Found
+
+**Symptom**: `/doctor` shows plugin "not found in marketplace"
+
+**Solution**:
 ```bash
-# Check marketplace configuration
-claude /plugins marketplaces
+# Verify marketplace configuration
+claude /plugins marketplaces  # Should show claude-code-plugins
 
-# Re-run bootstrap
+# Re-run bootstrap script
 bash .devcontainer/bootstrap-claude.sh
 
-# Check network
+# Test network connectivity
 curl -I https://api.github.com
 ```
 
 ---
 
-### Issue: Path Permission Error (macOS/Linux)
+### Permission Issues
 
+#### Path Permission Error (macOS/Linux)
+
+**Symptom**: Permission denied accessing project files
+
+**Solution**:
 ```bash
 # Ensure parent directories are traversable
 chmod o+rx /Users/<username>
@@ -491,58 +604,56 @@ chmod o+rx /Users/<username>/developer/<project>
 
 ---
 
-### Issue: extends Cannot Find Config File
+### Configuration Issues
+
+#### "extends" Cannot Find Config File
 
 **Symptom**: Shows "missing image information"
 
 **Solution**:
-- **Method 1**: Use `github:owner/repo` instead of `file:relative-path`
-- **Method 2**: Check if relative path is correct (path from project root to config file)
-- **Method 3**: Use Method 1 (VS Code UI flow), no extends needed
-
----
-
-### Issue: Authorization Page Keeps Spinning (OAuth localhost Callback)
-
-**Symptom**: After opening `https://claude.ai/oauth/authorize?...redirect_uri=http://localhost:<random-port>/callback` and clicking Authorize, page keeps loading.
-
-**Root Cause**: Callback service listens on `127.0.0.1:<random-port>` inside container, while browser on host accesses `localhost:<random-port>`. Without port forwarding, host's local loopback cannot reach container, callback request fails.
-
-**Solution**:
-- **Built-in**: `devcontainer.json` enables dynamic auto port forwarding (`portsAttributes.otherPortsAttributes` + `remote.autoForwardPorts=true`). When callback port listening appears, VS Code automatically forwards container port to same port on host; usually no manual action needed.
-- **If still failing**:
-  - Observe port number in auth URL (e.g., `63497`), manually Forward that port in VS Code left panel "PORTS".
-  - Or in container run `ss -lntp | grep <port>` to confirm listening before forwarding.
-  - **Workaround**: Set `CLAUDE_LOGIN_METHOD=console` and provide `ANTHROPIC_API_KEY`, switch to console/API Key login, bypassing browser local callback.
-
----
-
-### Issue: Startup Shows "Workspace does not exist"
-
-**Cause**: Host VS Code process didn't inherit `PROJECT_PATH`, or Docker Desktop didn't share that path, causing `/workspace` mount to fail.
-
-**Solution**:
-- **Recommended**: Use script to start: `scripts/open-project.sh <your-project-path>` (script starts independent VS Code instance, inherits environment variables).
-- Or configure in VS Code user settings:
-  ```jsonc
-  {
-    "dev.containers.defaultEnv": { "PROJECT_PATH": "/path/to/your/project" }
-  }
-  ```
-- **macOS**: Docker Desktop → Settings → Resources → File Sharing, ensure includes `/Users` or your project parent directory.
-- **If still failing**: First verify: `echo $PROJECT_PATH && test -d "$PROJECT_PATH" && echo OK || echo MISSING`.
+- Use `github:owner/repo` instead of `file:relative-path`
+- Verify relative path from project root to config file
+- Consider using Method 4 (Dev Container Template) instead
 
 ---
 
 ## Security Notice ⚠️
 
-- **Bypass mode** has no manual confirmation, use **only in trusted projects**
-- Firewall denies all outbound connections by default, only whitelisted domains accessible
-- Protected sensitive files: `.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
-- Container requires `--cap-add=NET_ADMIN` permission to manage firewall
-- **Read the security documentation**: [docs/SECURITY.md](docs/SECURITY.md)
+### Bypass Permissions Mode
 
-For more secure modes: Manually configure as shown in examples above.
+**Default Configuration**: This container enables `bypassPermissions` mode by default (auto-approves all operations).
+
+**⚠️ Important Restrictions**:
+- ✅ **Appropriate for**: Personal trusted projects, isolated development environments
+- ❌ **Not suitable for**: Untrusted code, security audits, collaboration projects
+
+**Switch to Safer Mode**:
+Edit `~/.claude/settings.json`:
+```jsonc
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",  // Auto-approve reads only, writes require confirmation
+    // Or completely disable bypass mode (enterprise policy)
+    "disableBypassPermissionsMode": "disable"
+  }
+}
+```
+
+See [Mode Switching](#mode-switching) section for more security options.
+
+### Network Security
+
+- **Firewall Whitelist**: Denies all outbound connections by default, only whitelisted domains accessible
+- **Sensitive File Protection**: Auto-protects `.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
+- **Container Permissions**: Requires `--cap-add=NET_ADMIN` permission to manage firewall
+
+### Credential Sharing Security
+
+- Host credentials mounted **read-only**
+- Container modifications **do not write back** to host
+- Token expiry requires re-login on host machine
+
+For more security best practices, see [docs/SECURITY.md](docs/SECURITY.md)
 
 ---
 
@@ -1001,4 +1112,4 @@ MIT License — See `LICENSE` file for details
 ---
 
 **Version**: 2.0.0
-**Last Updated**: 2025-11-22
+**Last Updated**: 2025-11-23

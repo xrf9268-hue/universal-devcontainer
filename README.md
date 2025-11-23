@@ -1,7 +1,7 @@
 # Universal Dev Container — Claude Code 开发环境
 
 > 可复用的 Dev Container 配置，集成 Claude Code、防火墙和代理支持。
-> 默认启用 **bypassPermissions**（绕过权限确认）— 仅用于**可信仓库**和**隔离环境**。
+> ⚠️ 默认启用 **bypassPermissions** 模式 — 请查看[安全提醒](#安全提醒-)了解使用限制。
 
 **语言 / Languages**: [中文](README.md) | [English](README.en.md)
 
@@ -14,6 +14,38 @@
 - ✅ **代理支持** — VPN/企业代理透传
 - ✅ **可复用** — 一份配置，用于所有项目
 
+---
+
+## 📋 快速参考
+
+<details open>
+<summary><b>常用命令速查</b></summary>
+
+```bash
+# 快速启动（推荐）
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
+
+# 验证安装
+claude /doctor                    # 检查 Claude Code 状态
+claude /permissions               # 查看权限模式
+node -v && python3 --version      # 检查开发工具
+
+# 故障排查
+echo $PROJECT_PATH                # 检查项目路径是否设置
+grep ' /workspace ' /proc/mounts  # 验证工作区挂载（容器内）
+```
+
+**关键路径**:
+- 你的项目: `/workspace`
+- 工具脚本: `/universal`
+- Claude 配置: `~/.claude/settings.json`
+
+**快速跳转**:
+- [快速开始](#快速开始-) | [故障排查](#故障排查) | [安全提醒](#安全提醒-) | [性能优化](#-性能优化)
+</details>
+
+---
+
 ## 先决条件
 
 - VS Code ≥ 1.105 + Dev Containers 扩展 ≥ 0.427
@@ -24,12 +56,76 @@
 
 ---
 
+## 🏗️ 架构概览
+
+<details>
+<summary><b>查看系统架构图</b></summary>
+
+```mermaid
+graph TB
+    subgraph Host["宿主机环境"]
+        VS["VS Code"]
+        Claude_Host["~/.claude/<br/>(Claude 凭证)"]
+        Project["你的项目<br/>/path/to/project"]
+        Repo["本仓库<br/>universal-devcontainer"]
+    end
+
+    subgraph Container["Dev Container"]
+        Workspace["/workspace<br/>(你的项目)"]
+        Universal["/universal<br/>(工具 & 脚本)"]
+        Claude_Container["~/.claude/<br/>(容器凭证)"]
+        Tools["开发工具<br/>Node.js, Python, etc."]
+        Firewall["防火墙<br/>(白名单)"]
+    end
+
+    subgraph External["外部服务"]
+        Claude_AI["Claude AI<br/>api.anthropic.com"]
+        GitHub["GitHub<br/>github.com"]
+        NPM["NPM Registry<br/>npmjs.org"]
+    end
+
+    VS -->|启动| Container
+    Project -->|只读挂载| Workspace
+    Repo -->|只读挂载| Universal
+    Claude_Host -->|只读挂载<br/>复制一次| Claude_Container
+
+    Tools -.->|访问| Workspace
+    Tools -.->|使用| Universal
+
+    Firewall -->|允许 HTTPS| Claude_AI
+    Firewall -->|允许 HTTPS| GitHub
+    Firewall -->|允许 HTTPS| NPM
+    Firewall -.->|阻止其他| External
+
+    style Container fill:#e1f5ff
+    style Host fill:#fff4e6
+    style External fill:#f3e5f5
+    style Firewall fill:#ffebee
+```
+
+**关键特性**：
+- 🔒 **只读挂载**: 宿主机文件安全保护
+- 🔑 **凭证复制**: 一次性从宿主机复制到容器
+- 🛡️ **防火墙**: 白名单控制所有出站流量
+- 🚀 **工具隔离**: 容器内环境不影响宿主机
+
+</details>
+
+---
+
 ## 快速开始 🚀
 
-**核心概念**：这个仓库提供一个可复用的 Dev Container 配置，通过 `workspaceMount` 动态挂载你的项目，并直接复用宿主机的 Claude 登录状态。
+**选择适合你的方式**：
+- **方法 1**（共享配置）：多个项目复用同一个配置 — 适合临时开发、快速试用
+- **方法 2**（独立配置）：每个项目有自己的配置 — 适合新项目、团队协作
 
-### 方法 1：使用脚本（最简单）⭐
+---
 
+### 方法 1：共享配置模式（推荐用于临时开发）⭐
+
+使用本仓库为多个项目提供统一的 Dev Container 环境。
+
+**快速开始**：
 ```bash
 # 1. 在宿主机安装并登录 Claude Code（仅需一次）
 npm i -g @anthropic-ai/claude-code
@@ -38,59 +134,34 @@ claude login
 # 2. 为任意项目打开容器
 /path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
 
-# 或在当前目录
-cd /path/to/your/project
-/path/to/universal-devcontainer/scripts/open-project.sh .
-
-# 或直接从 Git 仓库克隆并开发
+# 或从 Git 仓库直接克隆并开发
 /path/to/universal-devcontainer/scripts/open-project.sh https://github.com/owner/repo.git
 ```
 
 **工作原理**：
-1. 脚本设置 `PROJECT_PATH` 环境变量指向你的项目
-2. 打开 universal-devcontainer 目录（不是你的项目目录）
-3. VS Code 提示 "Reopen in Container"
-4. 容器启动后，你的项目被挂载到 `/workspace`
+1. 脚本自动设置 `PROJECT_PATH` 环境变量
+2. VS Code 在容器中挂载你的项目到 `/workspace`
+3. 本仓库工具挂载到 `/universal`
 
-### 方法 2：手动设置环境变量
+<details>
+<summary><b>方法 1 替代方案</b>（不使用脚本）</summary>
 
-如果不想用脚本，可以手动操作：
-
+**手动设置环境变量**：
 ```bash
-# 1. 设置项目路径（必需）
 export PROJECT_PATH=/path/to/your/project
-
-# 2. 确保宿主机已安装并登录 Claude Code（一次性操作）
-npm i -g @anthropic-ai/claude-code
-claude login
-
-# 3. 用 VS Code 打开 universal-devcontainer 目录
-code /path/to/universal-devcontainer
-
-# 4. 在 VS Code 中：Dev Containers: Reopen in Container
-```
-
-### 方法 3：开发容器本身
-
-如果你想在这个容器里开发 universal-devcontainer 本身，请同样提供 `PROJECT_PATH`（或使用脚本）：
-
-```bash
-# 方式 1：用脚本（推荐）
-/path/to/universal-devcontainer/scripts/open-project.sh /path/to/universal-devcontainer
-
-# 方式 2：手动设置环境变量
-export PROJECT_PATH=/path/to/universal-devcontainer
 code /path/to/universal-devcontainer
 # 在 VS Code 中：Dev Containers: Reopen in Container
 ```
 
-说明：为确保兼容性与可预期行为，本配置采用“方案A”，仅在设置了 `PROJECT_PATH` 时进行挂载。
+**开发本容器自身**：
+```bash
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/universal-devcontainer
+```
+</details>
 
-容器内路径约定：
-- 你的外部项目：`/workspace`
-- 本仓库（工具与脚本）：`/universal`
+---
 
-### 方法 4：使用 Dev Container Template（推荐用于新项目）📦
+### 方法 2：独立配置模式（推荐用于新项目）📦
 
 **适用场景**：为新项目创建独立的 Dev Container 配置
 
@@ -125,7 +196,7 @@ code /path/to/universal-devcontainer
 ```json
 {
   "name": "My Project",
-  "image": "ghcr.io/xrf9268-hue/universal-claude:latest",
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
   "remoteEnv": {
     "PROJECT_PATH": "${localWorkspaceFolder}"
   }
@@ -329,7 +400,7 @@ claude /plugins search commit-commands
 - `reviewing-prs` skill — 代码审查 AI 技能
 
 ### 端口转发
-默认转发：`3000`, `5173`, `8000`, `9003`
+默认转发：`3000`, `5173`, `8000`, `9003`, `1024`, `4444`
 
 ### 预装工具
 - **开发工具**：Node.js (LTS), Python 3.12, GitHub CLI
@@ -348,11 +419,18 @@ universal-devcontainer/
 │   ├── init-firewall.sh        # 防火墙规则
 │   └── setup-proxy.sh          # 代理配置
 ├── scripts/
-│   └── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
+│   ├── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
+│   ├── validate-all.sh         # 验证套件
+│   ├── test-container.sh       # 容器测试
+│   └── security-scan.sh        # 安全扫描
 ├── .claude/
 │   └── settings.local.json     # 项目级权限配置
-└── docs/
-    └── PROXY_SETUP.md          # 代理配置详细指南
+├── docs/
+│   ├── PROXY_SETUP.md          # 代理配置详细指南
+│   ├── SECURITY.md             # 安全策略和最佳实践
+│   └── SECURITY_AUDIT.md       # 安全审计报告
+└── .github/
+    └── workflows/              # CI/CD 流水线
 ```
 
 ---
@@ -401,65 +479,111 @@ universal-devcontainer/
 
 ## 故障排查
 
-### 问题：启动时提示 "Workspace does not exist"
+### 启动问题
 
-**原因**：宿主 VS Code 进程未继承 `PROJECT_PATH`，或 Docker Desktop 未共享该路径，导致 `/workspace` 挂载失败。
+#### "Workspace does not exist" 错误
+
+**现象**：容器启动失败，提示工作区挂载错误。
+
+**原因**：VS Code 进程未继承 `PROJECT_PATH`，或 Docker Desktop 未共享该路径。
 
 **解决方法**：
-1. **推荐方式**：使用脚本启动 `scripts/open-project.sh /path/to/your/project`
-2. **手动方式**：从终端执行 `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`（不要从 Dock 启动）
-3. **配置方式**：在 VS Code 用户设置中添加：
-   ```json
-   {
-     "dev.containers.defaultEnv": {
-       "PROJECT_PATH": "/path/to/your/project"
-     }
-   }
-   ```
-4. **macOS 路径共享**：Docker Desktop → Settings → Resources → File Sharing 包含项目父目录（如 `/Users`）
+- **推荐**：使用脚本 `scripts/open-project.sh /path/to/your/project`（自动设置环境）
+- **手动**：从终端执行 `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`
+- **持久化**：配置 VS Code 用户设置：
+  ```jsonc
+  {
+    "dev.containers.defaultEnv": { "PROJECT_PATH": "/path/to/your/project" }
+  }
+  ```
 
-**快速检查**：
+**macOS 专用**：
+- Docker Desktop → Settings → Resources → File Sharing
+- 确保父目录已共享（如 `/Users`）
+
+**快速自检**：
 - 宿主机：`echo $PROJECT_PATH && test -d "$PROJECT_PATH" && echo OK || echo MISSING`
-- 容器内：查看启动横幅（MOTD）或执行 `grep ' /workspace ' /proc/mounts`
+- 容器内：查看 MOTD 横幅或 `grep ' /workspace ' /proc/mounts`
 
-### 问题：Claude Code 登录失败（OAuth 回调）
+---
 
-**现象**：浏览器授权页点击 Authorize 后一直转圈。
+### 认证问题
 
-**原因**：回调服务在容器内监听，但宿主机浏览器无法访问容器的 localhost 端口。
+#### Claude Code 登录失败（OAuth 回调）
+
+**现象**：浏览器授权页点击 Authorize 后无限转圈。
+
+**根本原因**：OAuth 回调端口未从容器转发到宿主机。
+
+**快速检查清单**：
+- ✓ VS Code "PORTS" 面板显示回调端口（如 41521）已转发到 localhost
+- ✓ 宿主机代理绕行包含：`localhost, 127.0.0.1, ::1, host.docker.internal`
+- ✓ 测试回调服务：`curl http://127.0.0.1:<port>/`（应返回 404）
 
 **解决方法**：
-1. 检查 VS Code "PORTS" 面板，确认容器端口已自动转发到宿主机
-2. 手动转发端口（如果自动转发失败）
-3. 确保宿主机代理绕行包含：`localhost, 127.0.0.1, ::1, host.docker.internal`
-4. 或使用 API Key 登录方式：设置 `CLAUDE_LOGIN_METHOD=console` 和 `ANTHROPIC_API_KEY`
+1. **自动转发**（通常自动生效）：
+   - 容器已启用 `remote.autoForwardPorts=true`
+   - VS Code 在服务监听时自动转发
 
-**详细代理配置**：见 [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
+2. **手动转发**（自动转发失败时）：
+   - 从授权 URL 记录端口号（如 `http://localhost:63497/callback`）
+   - VS Code → PORTS 面板 → Forward Port → 输入端口号
 
-### 问题：容器无法访问外网
+3. **替代登录方式**（绕过浏览器）：
+   - 设置 `CLAUDE_LOGIN_METHOD=console` + `ANTHROPIC_API_KEY=sk-ant-...`
+   - 使用 API 密钥认证
 
-**检查项**：
-1. 防火墙是否阻止了你需要的域名？→ 添加到 `EXTRA_ALLOW_DOMAINS`
-2. 是否在受限网络？→ 配置 `HOST_PROXY_URL`，见 [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
-3. Docker 文件共享权限（macOS）：Docker Desktop → Resources → File Sharing 包含 `/Users`
+**代理配置**：详见 [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md) 代理绕行设置。
 
-### 问题：Claude Code 插件找不到
+---
 
+### 网络问题
+
+#### 容器无法访问外网
+
+**检查清单**：
+1. **防火墙阻止域名？**
+   - 添加到 `EXTRA_ALLOW_DOMAINS="gitlab.com myapi.com"`
+
+2. **企业代理环境？**
+   - 配置 `HOST_PROXY_URL=http://host.docker.internal:7890`
+   - 详见 [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
+
+3. **Docker 文件共享**（macOS）：
+   - Docker Desktop → Resources → File Sharing
+   - 确保包含 `/Users`
+
+---
+
+### 插件和扩展问题
+
+#### Claude Code 插件找不到
+
+**现象**：`/doctor` 显示插件 "not found in marketplace"
+
+**解决方法**：
 ```bash
-# 检查市场配置
-claude /plugins marketplaces
+# 验证市场配置
+claude /plugins marketplaces  # 应显示 claude-code-plugins
 
-# 重新 bootstrap
+# 重新运行 bootstrap 脚本
 bash .devcontainer/bootstrap-claude.sh
 
-# 检查网络
+# 测试网络连接
 curl -I https://api.github.com
 ```
 
-### 问题：路径权限错误（macOS/Linux）
+---
 
-确保父目录可遍历：
+### 权限问题
+
+#### 路径权限错误（macOS/Linux）
+
+**现象**：无法访问项目文件，权限被拒绝
+
+**解决方法**：
 ```bash
+# 确保父目录可遍历
 chmod o+rx /Users/<username>
 chmod o+rx /Users/<username>/developer
 chmod o+rx /Users/<username>/developer/<project>
@@ -469,12 +593,41 @@ chmod o+rx /Users/<username>/developer/<project>
 
 ## 安全提醒 ⚠️
 
-- **绕过模式**不会有人工确认，请**只在可信项目**使用
-- 防火墙默认拒绝所有出站连接，仅白名单域名可访问
-- 敏感文件受保护：`.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
-- 容器需要 `--cap-add=NET_ADMIN` 权限来管理防火墙
+### Bypass Permissions 模式
 
-如需更安全的模式：按上面的示例手动配置。
+**默认配置**：本容器默认启用 `bypassPermissions` 模式（自动批准所有操作）。
+
+**⚠️ 重要限制**：
+- ✅ **适用场景**：个人可信项目、隔离开发环境
+- ❌ **不适用**：不可信代码、安全审计、协作项目
+
+**切换到更安全模式**：
+编辑 `~/.claude/settings.json`：
+```jsonc
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",  // 仅自动批准读取，写入需确认
+    // 或完全禁用绕过模式（企业策略）
+    "disableBypassPermissionsMode": "disable"
+  }
+}
+```
+
+详见[模式切换](#模式切换)章节了解更多安全选项。
+
+### 网络安全
+
+- **防火墙白名单**：默认拒绝所有出站连接，仅白名单域名可访问
+- **敏感文件保护**：自动保护 `.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
+- **容器权限**：需要 `--cap-add=NET_ADMIN` 权限管理防火墙
+
+### 凭证共享安全
+
+- 宿主机凭证以**只读**方式挂载
+- 容器内修改**不会回写**到宿主机
+- Token 过期时需在宿主机重新登录
+
+更多安全最佳实践，请参阅 [docs/SECURITY.md](docs/SECURITY.md)
 
 ---
 
@@ -735,7 +888,7 @@ scripts/create-project.sh my-stack fullstack
 **Issue 模板**：
 - 🐛 [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) - 详细的 Bug 报告模板
 - 💡 [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) - 功能请求模板
-- 📋 [配置](. github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
+- 📋 [配置](.github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
 
 **PR 模板**：
 - ✅ [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
@@ -880,3 +1033,8 @@ rollback-devcontainer
 ## 许可证
 
 MIT License — 详见 `LICENSE` 文件
+
+---
+
+**版本**: 2.0.0
+**最后更新**: 2025-11-23
