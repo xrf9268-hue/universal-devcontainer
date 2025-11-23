@@ -1,0 +1,50 @@
+{
+  "id": "audit-logging",
+  "version": "1.0.0",
+  "name": "Audit Logging for Compliance",
+  "description": "Comprehensive audit logging for all dev container operations (SOC 2, ISO 27001 compliance)",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/audit-logging",
+  "options": {
+    "logLevel": {
+      "type": "string",
+      "enum": ["debug", "info", "warning", "error"],
+      "default": "info",
+      "description": "Logging level for audit events"
+    },
+    "logFileOperations": {
+      "type": "boolean",
+      "default": true,
+      "description": "Log all file read/write/delete operations"
+    },
+    "logNetworkRequests": {
+      "type": "boolean",
+      "default": true,
+      "description": "Log all outbound network requests"
+    },
+    "logCommandExecution": {
+      "type": "boolean",
+      "default": true,
+      "description": "Log all shell commands executed"
+    },
+    "logGitOperations": {
+      "type": "boolean",
+      "default": true,
+      "description": "Log all git operations (commit, push, pull)"
+    },
+    "retentionDays": {
+      "type": "number",
+      "default": 90,
+      "description": "Number of days to retain audit logs"
+    },
+    "enableSIEM": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable SIEM integration (syslog forwarding)"
+    },
+    "siemHost": {
+      "type": "string",
+      "default": "",
+      "description": "SIEM/syslog server host (optional)"
+    }
+  }
+}

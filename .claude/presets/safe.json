@@ -1,0 +1,52 @@
+{
+  "name": "Safe Mode",
+  "description": "Balanced security - allow reads, require approval for writes and executes",
+  "bypassPermissions": false,
+  "autoApprove": {
+    "read": ["**/*"],
+    "write": [],
+    "execute": ["git", "node", "npm", "python", "python3", "go"],
+    "network": []
+  },
+  "alwaysDeny": [
+    "**/.env",
+    "**/.env.*",
+    "**/secrets/**",
+    "**/*secret*",
+    "**/*password*",
+    "**/*credential*",
+    "**/*.key",
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.pfx",
+    "**/id_rsa",
+    "**/id_dsa",
+    "**/id_ecdsa",
+    "**/id_ed25519",
+    "**/.ssh/**",
+    "**/.aws/credentials",
+    "**/.config/gcloud/**"
+  ],
+  "requireApproval": {
+    "read": [],
+    "write": ["**/*"],
+    "execute": ["rm", "mv", "chmod", "sudo", "curl", "wget"],
+    "network": ["**/*"]
+  },
+  "useCases": [
+    "Default recommended mode",
+    "Collaborative projects",
+    "Code you mostly trust but want oversight",
+    "Production repository work",
+    "General-purpose development"
+  ],
+  "securityLevel": "balanced",
+  "recommended": true,
+  "notes": [
+    "This is the recommended default mode for most users",
+    "Claude can read and analyze code freely",
+    "Writes and destructive operations require your approval",
+    "Protected files are always denied (secrets, keys, credentials)",
+    "Good balance between security and productivity"
+  ]
+}

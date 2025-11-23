@@ -1,0 +1,38 @@
+{
+  "id": "offline-mode",
+  "version": "1.0.0",
+  "name": "Offline Mode for Air-Gapped Environments",
+  "description": "Configure dev container for completely offline operation (no internet access)",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/offline-mode",
+  "options": {
+    "blockAllExternal": {
+      "type": "boolean",
+      "default": true,
+      "description": "Block all external network access (except localhost)"
+    },
+    "allowLocalhost": {
+      "type": "boolean",
+      "default": true,
+      "description": "Allow connections to localhost and 127.0.0.1"
+    },
+    "allowDockerInternal": {
+      "type": "boolean",
+      "default": true,
+      "description": "Allow connections to host.docker.internal"
+    },
+    "allowPrivateNetworks": {
+      "type": "boolean",
+      "default": false,
+      "description": "Allow connections to private IP ranges (10.x, 192.168.x, 172.16-31.x)"
+    },
+    "cachePackages": {
+      "type": "boolean",
+      "default": true,
+      "description": "Pre-cache common packages for offline use"
+    }
+  },
+  "capAdd": [
+    "NET_ADMIN",
+    "NET_RAW"
+  ]
+}

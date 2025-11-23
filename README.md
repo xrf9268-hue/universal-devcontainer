@@ -460,6 +460,323 @@ chmod o+rx /Users/<username>/developer/<project>
 
 ---
 
+---
+
+## 📚 框架示例和工具集
+
+### 框架使用示例
+
+我们提供了 **7 个完整的框架示例**，展示如何将 Universal Dev Container 与流行框架结合使用：
+
+**前端框架**:
+- **[React + TypeScript](examples/react-app/)** - Vite + React 18，热模块替换
+- **[Next.js 15](examples/nextjs-app/)** - App Router + 服务器组件
+
+**后端框架**:
+- **[Node.js + Express](examples/nodejs-express/)** - TypeScript API，支持热重载
+- **[Python + FastAPI](examples/python-fastapi/)** - 高性能异步 API，自动文档
+- **[Python + Django](examples/python-django/)** - 完整 Web 框架，内置 ORM
+- **[Go + Gin](examples/go-app/)** - 高性能 Go Web 服务
+
+每个示例包含：
+- ✅ 完整的 `.devcontainer` 配置
+- ✅ 可运行的示例代码
+- ✅ Claude Code 集成
+- ✅ 框架特定的 VS Code 扩展
+- ✅ 详细的 README 和使用说明
+
+**查看所有示例**: [examples/README.md](examples/README.md)
+
+### Claude Code 权限模式
+
+提供 **4 种预设权限模式**，适应不同信任级别的项目：
+
+| 模式 | 说明 | 适用场景 |
+|------|------|----------|
+| **ultra-safe** | 所有操作需批准 | 不可信代码、安全审计 |
+| **safe** (推荐) | 允许读取，写入需批准 | 一般开发、协作项目 |
+| **dev** | 绕过所有权限 | 个人可信项目 |
+| **review** | 只读模式 | 代码审查、文档生成 |
+
+**快速切换模式**:
+```bash
+# 交互式选择
+scripts/configure-claude-mode.sh
+
+# 直接应用
+scripts/configure-claude-mode.sh safe
+scripts/configure-claude-mode.sh dev
+
+# 查看当前模式
+scripts/configure-claude-mode.sh status
+```
+
+预设文件位置: `.claude/presets/`
+
+### 可选工具集 Features
+
+提供 **4 个工具集 Features**，按需安装常用 CLI 工具：
+
+#### 🛠️ 开发工具集 (toolset-devtools)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-devtools:1": {
+      "includeTools": "all"  // all/essential/minimal
+    }
+  }
+}
+```
+包含: `lazygit`, `bat`, `fzf`, `httpie`, `ripgrep`, `eza`, `delta`
+
+#### 🗄️ 数据库工具集 (toolset-database)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-database:1": {}
+  }
+}
+```
+包含: `pgcli`, `mycli`, `redis-cli`, `mongosh`, `litecli`
+
+#### ☁️ 云平台工具集 (toolset-cloud)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-cloud:1": {
+      "installGcloud": true,
+      "installAzureCli": true
+    }
+  }
+}
+```
+包含: `aws`, `gcloud`, `az`, `doctl`
+
+#### ⚙️ Kubernetes 工具集 (toolset-kubernetes)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/toolset-kubernetes:1": {}
+  }
+}
+```
+包含: `kubectl`, `helm`, `k9s`, `kubectx`, `kustomize`, `skaffold`
+
+
+## 🚀 高级功能（Phase 5）
+
+### 多容器架构
+
+支持复杂的多服务应用，使用 Docker Compose 编排多个容器：
+
+**示例 1: [全栈应用](examples/multi-container/fullstack/)**
+- **技术栈**: React + FastAPI + PostgreSQL + Redis
+- **服务**: 前端、后端、数据库、缓存
+- **适用**: Web 应用、SaaS 平台
+
+**示例 2: [微服务架构](examples/multi-container/microservices/)**
+- **技术栈**: Node.js + Python + Go + PostgreSQL + RabbitMQ
+- **服务**: API网关 + 3个微服务 + 消息队列 + 服务发现
+- **适用**: 大型企业应用、分布式系统
+
+[查看多容器示例 →](examples/multi-container/README.md)
+
+### 项目模板生成器
+
+一键创建新项目，预配置 Dev Container：
+
+```bash
+# 交互式创建
+scripts/create-project.sh
+
+# 直接创建
+scripts/create-project.sh my-app react-ts
+scripts/create-project.sh my-api fastapi
+scripts/create-project.sh my-stack fullstack
+```
+
+**可用模板**:
+- react-ts, nextjs (前端)
+- express-ts, fastapi, django, go-gin (后端)
+- fullstack, microservices (复杂架构)
+
+### 企业合规功能
+
+#### 审计日志 (audit-logging)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/audit-logging:1": {
+      "retentionDays": 90,
+      "enableSIEM": false
+    }
+  }
+}
+```
+- 记录所有文件操作、网络请求、命令执行
+- SOC 2, ISO 27001, HIPAA 合规
+- JSON 格式，可集成 SIEM 系统
+
+#### 离线模式 (offline-mode)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/offline-mode:1": {
+      "blockAllExternal": true
+    }
+  }
+}
+```
+- 完全阻断外网访问（气隙环境）
+- ITAR, 涉密项目合规
+- 本地服务正常工作
+
+#### GDPR 合规 (compliance-gdpr)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/compliance-gdpr:1": {
+      "enablePIIDetection": true,
+      "dataRetentionDays": 30
+    }
+  }
+}
+```
+- PII 检测、数据加密
+- 数据擦除（被遗忘权）
+- 数据导出（可移植性）
+- GDPR Article 5, 17, 20 合规
+
+[查看合规功能详情 →](src/features/)
+
+## 🌍 社区与生态系统（Phase 6）
+
+### 贡献指南和规范
+
+我们欢迎所有形式的贡献！无论是报告 Bug、提出新功能、改进文档还是提交代码。
+
+#### 📖 核心文档
+
+- **[贡献指南](CONTRIBUTING.md)** - 完整的开发工作流、代码规范、测试清单
+- **[行为准则](CODE_OF_CONDUCT.md)** - 社区行为规范（基于 Contributor Covenant 2.1）
+- **[社区指南](COMMUNITY.md)** - 如何参与社区、沟通渠道、项目目标
+
+#### 🔧 开发工具
+
+**Git 钩子**：
+```bash
+# 安装 pre-commit 钩子（推荐）
+./scripts/install-hooks.sh
+
+# 钩子会自动验证：
+# ✓ JSON 文件格式（jq empty）
+# ✓ Shell 脚本语法（bash -n）
+# ✓ ShellCheck 警告
+# ✓ 潜在的敏感信息
+# ✓ 大文件检测
+```
+
+**.editorconfig**：
+- 统一代码格式（所有编辑器通用）
+- JSON/YAML 2空格缩进
+- Shell 脚本 4空格缩进
+- 自动去除行尾空格
+
+#### 📝 Issue 和 PR 模板
+
+**Issue 模板**：
+- 🐛 [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) - 详细的 Bug 报告模板
+- 💡 [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) - 功能请求模板
+- 📋 [配置](. github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
+
+**PR 模板**：
+- ✅ [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
+- 包含类型、测试清单、安全检查
+- 自动化的验证流程
+
+### GitHub Discussions
+
+我们使用 GitHub Discussions 作为主要的社区平台：
+
+**分类**：
+- 📢 **Announcements** - 发布公告、重要更新
+- 💡 **Ideas & Feature Requests** - 功能建议和讨论
+- 🙋 **Q&A** - 提问和获取帮助
+- 🎨 **Show and Tell** - 分享你的项目和配置
+- 🔧 **Development & Contributing** - 开发讨论
+- 💬 **General** - 一般性讨论
+
+[加入 Discussions →](https://github.com/xrf9268-hue/universal-devcontainer/discussions)
+
+### 视频教程计划
+
+我们正在制作视频教程系列，帮助用户快速上手：
+
+**初级教程**（计划中）：
+1. Universal Dev Container 入门（5-7分钟）
+2. Claude Code 集成基础（8-10分钟）
+3. 创建第一个项目（10-12分钟）
+
+**中级教程**（计划中）：
+4. 框架示例详解（12-15分钟）
+5. 权限模式深入（10-12分钟）
+6. 多容器开发（15-18分钟）
+
+**高级教程**（计划中）：
+7. 自定义 Dev Container Features（12-15分钟）
+8. 企业合规功能（15-18分钟）
+9. 防火墙和网络安全（10-12分钟）
+10. 参与项目贡献（8-10分钟）
+
+[查看完整教程计划 →](docs/VIDEO_TUTORIALS.md)
+
+### 如何贡献
+
+#### 🎨 添加框架示例
+```bash
+# 1. 创建示例目录
+mkdir -p examples/your-framework/{.devcontainer,src}
+
+# 2. 添加 devcontainer.json
+# 参考现有示例
+
+# 3. 编写 README.md
+# 说明如何使用这个示例
+
+# 4. 提交 PR
+```
+
+#### 🔧 创建 Dev Container Feature
+```bash
+# 1. 创建 Feature 结构
+mkdir -p src/features/your-feature
+cd src/features/your-feature
+
+# 2. 创建必需文件
+# - devcontainer-feature.json（元数据）
+# - install.sh（安装脚本）
+# - README.md（文档）
+
+# 3. 测试 Feature
+# 在 devcontainer.json 中引用测试
+
+# 4. 提交 PR
+```
+
+#### 📝 改进文档
+- 修复错别字和错误
+- 添加示例和截图
+- 澄清混淆的部分
+- 翻译到其他语言
+
+#### 🐛 报告 Bug
+使用 [Bug Report 模板](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=bug_report.md)
+
+#### 💡 提出功能
+使用 [Feature Request 模板](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=feature_request.md)
+
+[查看完整贡献指南 →](CONTRIBUTING.md)
+
 ## 🔄 更新和维护
 
 ### 增量更新（无需重建容器）

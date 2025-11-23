@@ -1,0 +1,6 @@
+# mycli 1.27.0 with SHA256 hash pinning
+# Generated for maximum security compliance
+# Source: https://pypi.org/project/mycli/1.27.0/#files
+
+mycli==1.27.0 \
+    --hash=sha256:08b8f2b0c6f285ea08be2c8fe6508a8c2d7c89e2e7b4ff7cc8c4915f8b8b3baa

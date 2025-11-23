@@ -1,0 +1,39 @@
+{
+  "id": "toolset-kubernetes",
+  "version": "1.0.0",
+  "name": "Kubernetes Tools Collection",
+  "description": "Essential tools for Kubernetes development and operations",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/toolset-kubernetes",
+  "options": {
+    "installKubectl": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install kubectl - Kubernetes CLI"
+    },
+    "installHelm": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install Helm - Kubernetes package manager"
+    },
+    "installK9s": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install k9s - Terminal UI for Kubernetes"
+    },
+    "installKubectx": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install kubectx/kubens - Context and namespace switcher"
+    },
+    "installKustomize": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install kustomize - Kubernetes configuration customization"
+    },
+    "installSkaffold": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install skaffold - Local Kubernetes development"
+    }
+  }
+}

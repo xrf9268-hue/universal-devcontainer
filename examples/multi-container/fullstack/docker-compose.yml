@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Development container - where you code
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    networks:
+      - fullstack
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://postgres:password@db:5432/myapp
+      # Redis connection
+      REDIS_URL: redis://redis:6379
+      # API URL for frontend
+      VITE_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"  # Frontend dev server
+      - "3001:3001"  # Backend API
+    depends_on:
+      - db
+      - redis
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - fullstack
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - fullstack
+    ports:
+      - "6379:6379"
+
+  # Optional: PgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    networks:
+      - fullstack
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+networks:
+  fullstack:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

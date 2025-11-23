@@ -1,0 +1,39 @@
+{
+  "id": "compliance-gdpr",
+  "version": "1.0.0",
+  "name": "GDPR Compliance Configuration",
+  "description": "Tools and configurations for GDPR data protection compliance",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/compliance-gdpr",
+  "options": {
+    "enableDataEncryption": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable encryption for sensitive data at rest"
+    },
+    "enablePIIDetection": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable PII (Personally Identifiable Information) detection"
+    },
+    "dataRetentionDays": {
+      "type": "number",
+      "default": 30,
+      "description": "Maximum data retention period (days)"
+    },
+    "enableRightToErasure": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable tools for data erasure (GDPR Article 17)"
+    },
+    "enableDataPortability": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable data export tools (GDPR Article 20)"
+    },
+    "enableConsentTracking": {
+      "type": "boolean",
+      "default": false,
+      "description": "Track user consent for data processing"
+    }
+  }
+}

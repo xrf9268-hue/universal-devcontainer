@@ -1,0 +1,46 @@
+{
+  "name": "Go Web Service with Claude Code",
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.21-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.21"
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {
+      "loginMethod": "host",
+      "bypassPermissions": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "go.useLanguageServer": true,
+        "go.lintOnSave": "workspace",
+        "go.formatTool": "gofmt"
+      }
+    }
+  },
+
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Go Web Server",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "go mod download",
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/host-claude,type=bind,readonly"
+  ],
+
+  "postStartCommand": "bash ~/.claude/import-host-settings.sh 2>/dev/null || true"
+}

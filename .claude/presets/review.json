@@ -1,0 +1,53 @@
+{
+  "name": "Review Mode",
+  "description": "Read-only mode for code review, analysis, and documentation",
+  "bypassPermissions": false,
+  "autoApprove": {
+    "read": ["**/*"],
+    "write": [],
+    "execute": ["git", "grep", "find", "cat", "ls", "tree"],
+    "network": []
+  },
+  "alwaysDeny": [
+    "**/.env",
+    "**/.env.*",
+    "**/secrets/**",
+    "**/*secret*",
+    "**/*password*",
+    "**/*credential*",
+    "**/*.key",
+    "**/*.pem",
+    "**/.ssh/**",
+    "**/.aws/credentials"
+  ],
+  "requireApproval": {
+    "read": [],
+    "write": ["**/*"],
+    "execute": ["rm", "mv", "chmod", "sudo", "curl", "wget", "npm", "pip", "go"],
+    "network": ["**/*"]
+  },
+  "useCases": [
+    "Code review and auditing",
+    "Documentation generation",
+    "Code analysis and exploration",
+    "Learning from existing codebases",
+    "Security audits",
+    "Read-only consulting"
+  ],
+  "securityLevel": "read-only",
+  "recommended": false,
+  "features": [
+    "Claude can read and analyze any code",
+    "Claude can provide suggestions via comments",
+    "No write operations allowed",
+    "Safe commands like git, grep allowed",
+    "Perfect for reviewing pull requests"
+  ],
+  "notes": [
+    "Ideal for code review and analysis tasks",
+    "Claude can suggest changes but cannot make them",
+    "Good for exploring unfamiliar codebases safely",
+    "Use when you want insights without modifications",
+    "Can still generate documentation and reports"
+  ]
+}

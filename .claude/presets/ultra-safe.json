@@ -1,0 +1,46 @@
+{
+  "name": "Ultra-Safe Mode",
+  "description": "Maximum security - require approval for ALL operations including reads",
+  "bypassPermissions": false,
+  "autoApprove": [],
+  "alwaysDeny": [
+    "**/.env",
+    "**/.env.*",
+    "**/secrets/**",
+    "**/*secret*",
+    "**/*password*",
+    "**/*credential*",
+    "**/*.key",
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.pfx",
+    "**/id_rsa",
+    "**/id_dsa",
+    "**/id_ecdsa",
+    "**/id_ed25519",
+    "**/.ssh/**",
+    "**/.aws/credentials",
+    "**/.config/gcloud/**"
+  ],
+  "requireApproval": {
+    "read": ["**/*"],
+    "write": ["**/*"],
+    "execute": ["**/*"],
+    "network": ["**/*"]
+  },
+  "useCases": [
+    "Untrusted repositories",
+    "Public/open-source code review",
+    "Sensitive enterprise environments",
+    "Learning and evaluation",
+    "Maximum paranoia mode"
+  ],
+  "securityLevel": "maximum",
+  "recommended": false,
+  "notes": [
+    "This mode requires approval for EVERY operation, including file reads",
+    "Best for reviewing code you don't trust at all",
+    "Can be tedious for normal development",
+    "Use for code audits, security reviews, or untrusted sources"
+  ]
+}

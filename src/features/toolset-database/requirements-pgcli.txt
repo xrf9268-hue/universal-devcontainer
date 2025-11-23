@@ -1,0 +1,6 @@
+# pgcli 4.0.1 with SHA256 hash pinning
+# Generated for maximum security compliance
+# Source: https://pypi.org/project/pgcli/4.0.1/#files
+
+pgcli==4.0.1 \
+    --hash=sha256:2f949b08a9331e89386ea9171c4462a0ea4f2d14c2a99f9d87eab1cbf8e5f8c4

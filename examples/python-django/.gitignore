@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+*.log
+db.sqlite3
+db.sqlite3-journal
+.env
+.env.local
+staticfiles/
+media/
+*.egg-info/

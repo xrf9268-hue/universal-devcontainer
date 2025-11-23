@@ -1,0 +1,6 @@
+# litecli 1.11.0 with SHA256 hash pinning
+# Generated for maximum security compliance
+# Source: https://pypi.org/project/litecli/1.11.0/#files
+
+litecli==1.11.0 \
+    --hash=sha256:1b3ee3df59cc481489165cd4df81976a9cdde0d5a25e175605ccf0758d0fc21d

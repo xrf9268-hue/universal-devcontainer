@@ -1,0 +1,29 @@
+{
+  "id": "toolset-cloud",
+  "version": "1.0.0",
+  "name": "Cloud CLI Tools Collection",
+  "description": "Command-line tools for AWS, Google Cloud, and Azure",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/toolset-cloud",
+  "options": {
+    "installAwsCli": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install AWS CLI v2"
+    },
+    "installGcloud": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install Google Cloud SDK (gcloud)"
+    },
+    "installAzureCli": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install Azure CLI (az)"
+    },
+    "installDoctl": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install DigitalOcean CLI (doctl)"
+    }
+  }
+}
