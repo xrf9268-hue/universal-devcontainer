@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm@sha256:49698b6eae8a476ebfe37652b03a415d66f4e7ea8e1f8253a46b7a7836fe59ef
+FROM mcr.microsoft.com/devcontainers/typescript-node:4-24-bookworm@sha256:a13b8f84b610f4a75186ed7c077b415a4b342dfd4e3b33420b8f8f9028da0347
 
 # Install Python
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
