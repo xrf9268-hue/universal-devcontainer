@@ -99,6 +99,60 @@ code /path/to/universal-devcontainer
 - Your external project: `/workspace`
 - This repository (tools & scripts): `/universal`
 
+### Method 4: Using Dev Container Template (Recommended for New Projects) 📦
+
+**Use Case**: Create standalone Dev Container configuration for your own projects
+
+Starting from v2.1.0, this project provides a **Dev Container Template** that allows you to quickly generate configuration for your project without depending on this repository.
+
+**Steps**:
+
+1. Open your project in VS Code
+2. Press `Cmd/Ctrl + Shift + P` to open Command Palette
+3. Select "Dev Containers: Add Dev Container Configuration Files..."
+4. Select "Show All Definitions..."
+5. Search and select "Universal Dev Container with Claude Code"
+6. Configure options:
+   - **Claude Login Method**: `host` (recommended) / `api-key` / `manual`
+   - **Enable Firewall**: `true` (default, whitelist-based firewall) / `false`
+   - **Strict Proxy Mode**: `true` / `false` (default, force all traffic through proxy)
+   - **Timezone**: Your timezone (e.g., `America/New_York`, `UTC`)
+   - **Enable Sandbox**: `true` / `false` (default, command sandbox)
+   - **Bypass Permissions**: `true` (default, auto-approve) / `false` (require approval)
+7. Click "Reopen in Container"
+
+**Template Features**:
+- ✅ In-project configuration (`.devcontainer/` directory in your project)
+- ✅ Customizable options (configure via UI, no manual editing)
+- ✅ Independent (doesn't depend on this repository)
+- ✅ Shareable (team members can clone and use directly)
+
+**Manual Configuration** (without UI):
+
+Create `.devcontainer/devcontainer.json` in your project root:
+
+```json
+{
+  "name": "My Project",
+  "image": "ghcr.io/xrf9268-hue/universal-claude:latest",
+  "remoteEnv": {
+    "PROJECT_PATH": "${localWorkspaceFolder}"
+  }
+}
+```
+
+**Template vs Repository Approach Comparison**:
+
+| Feature | Repository Approach (Method 1-3) | Dev Container Template (Method 4) |
+|---------|----------------------------------|-----------------------------------|
+| Use Case | Temporary development, shared config | New projects, team collaboration |
+| Config Location | This repository | In-project `.devcontainer/` |
+| Flexibility | Manual env vars | UI configuration options |
+| Dependencies | Requires this repo | Independent (config in project) |
+| Updates | git pull this repo | Re-apply template or manual update |
+
+📖 **Template Full Documentation**: See [`src/universal-claude/README.md`](src/universal-claude/README.md)
+
 ---
 
 ## Verify Installation

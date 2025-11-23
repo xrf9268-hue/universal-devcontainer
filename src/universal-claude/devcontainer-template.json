@@ -1,0 +1,93 @@
+{
+  "id": "universal-claude",
+  "version": "2.1.0",
+  "name": "Universal Dev Container with Claude Code",
+  "description": "Production-ready development environment with Claude Code AI assistant, network firewall, and proxy support",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer",
+  "licenseURL": "https://github.com/xrf9268-hue/universal-devcontainer/blob/main/LICENSE",
+  "publisher": "xrf9268-hue",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai-assistant",
+    "security",
+    "firewall",
+    "proxy",
+    "universal",
+    "node",
+    "python"
+  ],
+  "platforms": [
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "Go",
+    "Rust",
+    "Any"
+  ],
+  "options": {
+    "claudeLoginMethod": {
+      "type": "string",
+      "enum": [
+        "host",
+        "api-key",
+        "manual"
+      ],
+      "default": "host",
+      "description": "How to authenticate Claude Code: 'host' copies from ~/.claude (recommended), 'api-key' uses ANTHROPIC_API_KEY env var, 'manual' requires you to login manually after container starts"
+    },
+    "enableFirewall": {
+      "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ],
+      "default": "true",
+      "description": "Enable whitelist-based outbound firewall (blocks all non-whitelisted egress traffic). Requires NET_ADMIN capability."
+    },
+    "strictProxyMode": {
+      "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ],
+      "default": "false",
+      "description": "If true, forces ALL outbound traffic through HTTP_PROXY (no direct HTTPS to allowlisted domains). Only enable if you have a corporate proxy."
+    },
+    "timezone": {
+      "type": "string",
+      "proposals": [
+        "UTC",
+        "America/New_York",
+        "America/Los_Angeles",
+        "America/Chicago",
+        "Europe/London",
+        "Europe/Paris",
+        "Asia/Tokyo",
+        "Asia/Shanghai",
+        "Asia/Singapore",
+        "Australia/Sydney"
+      ],
+      "default": "UTC",
+      "description": "Container timezone (e.g., 'America/New_York', 'Europe/London', 'Asia/Shanghai'). Uses TZ environment variable."
+    },
+    "enableSandbox": {
+      "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ],
+      "default": "false",
+      "description": "Enable Claude Code sandbox mode (restricts command execution). Recommended for untrusted repositories."
+    },
+    "bypassPermissions": {
+      "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ],
+      "default": "true",
+      "description": "Enable Claude Code bypass permissions mode (auto-approve read/write operations). ONLY use with trusted repositories!"
+    }
+  }
+}
