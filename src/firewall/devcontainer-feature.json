@@ -1,0 +1,47 @@
+{
+  "id": "firewall",
+  "version": "1.0.0",
+  "name": "Whitelist-based Outbound Firewall",
+  "description": "Configures iptables-based egress firewall with domain whitelisting and proxy support",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/firewall",
+  "options": {
+    "preset": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "strict",
+        "permissive"
+      ],
+      "default": "standard",
+      "description": "Firewall preset: 'standard' (common dev domains), 'strict' (minimal access), 'permissive' (relaxed rules)"
+    },
+    "whitelistDomains": {
+      "type": "string",
+      "default": "",
+      "description": "Additional comma-separated domains to whitelist (e.g., 'example.com,api.service.com')"
+    },
+    "strictProxyMode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Force all traffic through HTTP_PROXY (no direct HTTPS to whitelisted domains)"
+    },
+    "allowSSH": {
+      "type": "string",
+      "enum": [
+        "github-only",
+        "all",
+        "none"
+      ],
+      "default": "github-only",
+      "description": "SSH access: 'github-only' (GitHub.com only), 'all' (any destination), 'none' (block all SSH)"
+    }
+  },
+  "capAdd": [
+    "NET_ADMIN",
+    "NET_RAW"
+  ],
+  "postStartCommand": "sudo -E bash /usr/local/bin/init-firewall.sh",
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

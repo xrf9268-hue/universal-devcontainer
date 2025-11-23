@@ -1,0 +1,52 @@
+{
+  "id": "claude-code",
+  "version": "1.0.0",
+  "name": "Claude Code AI Assistant",
+  "description": "Installs and configures Claude Code CLI with customizable authentication and permissions",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/claude-code",
+  "options": {
+    "loginMethod": {
+      "type": "string",
+      "enum": [
+        "host",
+        "api-key",
+        "manual"
+      ],
+      "default": "host",
+      "description": "Authentication method: 'host' copies from ~/.claude, 'api-key' uses ANTHROPIC_API_KEY, 'manual' requires manual login"
+    },
+    "bypassPermissions": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable bypass permissions mode (auto-approve operations). ONLY for trusted repositories!"
+    },
+    "installPlugins": {
+      "type": "string",
+      "default": "commit-commands,pr-review-toolkit,security-guidance",
+      "description": "Comma-separated list of plugins to install from claude-code-plugins marketplace"
+    },
+    "enableSandbox": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable Claude Code sandbox mode (restricts command execution)"
+    },
+    "orgUUID": {
+      "type": "string",
+      "default": "",
+      "description": "Force specific Claude organization UUID (optional)"
+    }
+  },
+  "mounts": [
+    {
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.claude",
+      "target": "/host-claude",
+      "type": "bind"
+    }
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
