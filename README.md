@@ -649,6 +649,134 @@ scripts/create-project.sh my-stack fullstack
 
 [查看合规功能详情 →](src/features/)
 
+## 🌍 社区与生态系统（Phase 6）
+
+### 贡献指南和规范
+
+我们欢迎所有形式的贡献！无论是报告 Bug、提出新功能、改进文档还是提交代码。
+
+#### 📖 核心文档
+
+- **[贡献指南](CONTRIBUTING.md)** - 完整的开发工作流、代码规范、测试清单
+- **[行为准则](CODE_OF_CONDUCT.md)** - 社区行为规范（基于 Contributor Covenant 2.1）
+- **[社区指南](COMMUNITY.md)** - 如何参与社区、沟通渠道、项目目标
+
+#### 🔧 开发工具
+
+**Git 钩子**：
+```bash
+# 安装 pre-commit 钩子（推荐）
+./scripts/install-hooks.sh
+
+# 钩子会自动验证：
+# ✓ JSON 文件格式（jq empty）
+# ✓ Shell 脚本语法（bash -n）
+# ✓ ShellCheck 警告
+# ✓ 潜在的敏感信息
+# ✓ 大文件检测
+```
+
+**.editorconfig**：
+- 统一代码格式（所有编辑器通用）
+- JSON/YAML 2空格缩进
+- Shell 脚本 4空格缩进
+- 自动去除行尾空格
+
+#### 📝 Issue 和 PR 模板
+
+**Issue 模板**：
+- 🐛 [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) - 详细的 Bug 报告模板
+- 💡 [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) - 功能请求模板
+- 📋 [配置](. github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
+
+**PR 模板**：
+- ✅ [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
+- 包含类型、测试清单、安全检查
+- 自动化的验证流程
+
+### GitHub Discussions
+
+我们使用 GitHub Discussions 作为主要的社区平台：
+
+**分类**：
+- 📢 **Announcements** - 发布公告、重要更新
+- 💡 **Ideas & Feature Requests** - 功能建议和讨论
+- 🙋 **Q&A** - 提问和获取帮助
+- 🎨 **Show and Tell** - 分享你的项目和配置
+- 🔧 **Development & Contributing** - 开发讨论
+- 💬 **General** - 一般性讨论
+
+[加入 Discussions →](https://github.com/xrf9268-hue/universal-devcontainer/discussions)
+
+### 视频教程计划
+
+我们正在制作视频教程系列，帮助用户快速上手：
+
+**初级教程**（计划中）：
+1. Universal Dev Container 入门（5-7分钟）
+2. Claude Code 集成基础（8-10分钟）
+3. 创建第一个项目（10-12分钟）
+
+**中级教程**（计划中）：
+4. 框架示例详解（12-15分钟）
+5. 权限模式深入（10-12分钟）
+6. 多容器开发（15-18分钟）
+
+**高级教程**（计划中）：
+7. 自定义 Dev Container Features（12-15分钟）
+8. 企业合规功能（15-18分钟）
+9. 防火墙和网络安全（10-12分钟）
+10. 参与项目贡献（8-10分钟）
+
+[查看完整教程计划 →](docs/VIDEO_TUTORIALS.md)
+
+### 如何贡献
+
+#### 🎨 添加框架示例
+```bash
+# 1. 创建示例目录
+mkdir -p examples/your-framework/{.devcontainer,src}
+
+# 2. 添加 devcontainer.json
+# 参考现有示例
+
+# 3. 编写 README.md
+# 说明如何使用这个示例
+
+# 4. 提交 PR
+```
+
+#### 🔧 创建 Dev Container Feature
+```bash
+# 1. 创建 Feature 结构
+mkdir -p src/features/your-feature
+cd src/features/your-feature
+
+# 2. 创建必需文件
+# - devcontainer-feature.json（元数据）
+# - install.sh（安装脚本）
+# - README.md（文档）
+
+# 3. 测试 Feature
+# 在 devcontainer.json 中引用测试
+
+# 4. 提交 PR
+```
+
+#### 📝 改进文档
+- 修复错别字和错误
+- 添加示例和截图
+- 澄清混淆的部分
+- 翻译到其他语言
+
+#### 🐛 报告 Bug
+使用 [Bug Report 模板](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=bug_report.md)
+
+#### 💡 提出功能
+使用 [Feature Request 模板](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=feature_request.md)
+
+[查看完整贡献指南 →](CONTRIBUTING.md)
+
 ## 🔄 更新和维护
 
 ### 增量更新（无需重建容器）

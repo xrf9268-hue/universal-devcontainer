@@ -750,6 +750,134 @@ scripts/create-project.sh my-stack fullstack
 
 [View Compliance Features →](src/features/)
 
+## 🌍 Community & Ecosystem (Phase 6)
+
+### Contribution Guidelines and Standards
+
+We welcome all forms of contributions! Whether it's reporting bugs, suggesting features, improving documentation, or submitting code.
+
+#### 📖 Core Documentation
+
+- **[Contributing Guide](CONTRIBUTING.md)** - Complete development workflow, coding standards, testing checklist
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community behavior guidelines (based on Contributor Covenant 2.1)
+- **[Community Guide](COMMUNITY.md)** - How to participate, communication channels, project goals
+
+#### 🔧 Development Tools
+
+**Git Hooks**:
+```bash
+# Install pre-commit hooks (recommended)
+./scripts/install-hooks.sh
+
+# Hooks automatically validate:
+# ✓ JSON file format (jq empty)
+# ✓ Shell script syntax (bash -n)
+# ✓ ShellCheck warnings
+# ✓ Potential secrets
+# ✓ Large file detection
+```
+
+**.editorconfig**:
+- Consistent code formatting (universal for all editors)
+- JSON/YAML 2-space indentation
+- Shell scripts 4-space indentation
+- Automatic trailing whitespace removal
+
+#### 📝 Issue and PR Templates
+
+**Issue Templates**:
+- 🐛 [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) - Detailed bug report template
+- 💡 [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) - Feature request template
+- 📋 [Config](.github/ISSUE_TEMPLATE/config.yml) - Guide users to Discussions/Security
+
+**PR Template**:
+- ✅ [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
+- Includes type, testing checklist, security checks
+- Automated validation workflow
+
+### GitHub Discussions
+
+We use GitHub Discussions as our primary community platform:
+
+**Categories**:
+- 📢 **Announcements** - Releases and important updates
+- 💡 **Ideas & Feature Requests** - Feature suggestions and discussions
+- 🙋 **Q&A** - Ask questions and get help
+- 🎨 **Show and Tell** - Share your projects and configurations
+- 🔧 **Development & Contributing** - Development discussions
+- 💬 **General** - General discussions
+
+[Join Discussions →](https://github.com/xrf9268-hue/universal-devcontainer/discussions)
+
+### Video Tutorial Plans
+
+We are creating a video tutorial series to help users get started quickly:
+
+**Beginner Tutorials** (Planned):
+1. Getting Started with Universal Dev Container (5-7 min)
+2. Claude Code Integration Basics (8-10 min)
+3. Creating Your First Project (10-12 min)
+
+**Intermediate Tutorials** (Planned):
+4. Working with Framework Examples (12-15 min)
+5. Permission Modes Deep Dive (10-12 min)
+6. Multi-Container Development (15-18 min)
+
+**Advanced Tutorials** (Planned):
+7. Custom Dev Container Features (12-15 min)
+8. Enterprise Compliance Features (15-18 min)
+9. Firewall and Network Security (10-12 min)
+10. Contributing to the Project (8-10 min)
+
+[View Complete Tutorial Plan →](docs/VIDEO_TUTORIALS.md)
+
+### How to Contribute
+
+#### 🎨 Add Framework Examples
+```bash
+# 1. Create example directory
+mkdir -p examples/your-framework/{.devcontainer,src}
+
+# 2. Add devcontainer.json
+# Reference existing examples
+
+# 3. Write README.md
+# Explain how to use this example
+
+# 4. Submit PR
+```
+
+#### 🔧 Create Dev Container Features
+```bash
+# 1. Create Feature structure
+mkdir -p src/features/your-feature
+cd src/features/your-feature
+
+# 2. Create required files
+# - devcontainer-feature.json (metadata)
+# - install.sh (installation script)
+# - README.md (documentation)
+
+# 3. Test Feature
+# Reference in devcontainer.json for testing
+
+# 4. Submit PR
+```
+
+#### 📝 Improve Documentation
+- Fix typos and errors
+- Add examples and screenshots
+- Clarify confusing sections
+- Translate to other languages
+
+#### 🐛 Report Bugs
+Use the [Bug Report template](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=bug_report.md)
+
+#### 💡 Suggest Features
+Use the [Feature Request template](https://github.com/xrf9268-hue/universal-devcontainer/issues/new?template=feature_request.md)
+
+[View Complete Contributing Guide →](CONTRIBUTING.md)
+
 ## 🔄 Updates and Maintenance
 
 ### Incremental Updates (No Container Rebuild)
