@@ -1,0 +1,108 @@
+version: 2
+updates:
+  # Python dependencies in Django example
+  - package-ecosystem: "pip"
+    directory: "/examples/python-django"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "python"
+      - "django"
+    commit-message:
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps)"
+      include: "scope"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "xrf9268-hue"
+    # Group updates by dependency type
+    groups:
+      django-framework:
+        patterns:
+          - "Django*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Python dependencies in FastAPI example
+  - package-ecosystem: "pip"
+    directory: "/examples/python-fastapi"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "python"
+      - "fastapi"
+    commit-message:
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps)"
+      include: "scope"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "xrf9268-hue"
+    groups:
+      fastapi-framework:
+        patterns:
+          - "fastapi"
+          - "uvicorn*"
+          - "pydantic*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "xrf9268-hue"
+
+  # Docker (if using Dockerfiles)
+  - package-ecosystem: "docker"
+    directory: "/examples/multi-container/fullstack/.devcontainer"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "fix(deps)"
+      include: "scope"
+    open-pull-requests-limit: 2
+
+  - package-ecosystem: "docker"
+    directory: "/examples/multi-container/microservices/.devcontainer"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "fix(deps)"
+      include: "scope"
+    open-pull-requests-limit: 2
