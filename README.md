@@ -14,6 +14,38 @@
 - ✅ **代理支持** — VPN/企业代理透传
 - ✅ **可复用** — 一份配置，用于所有项目
 
+---
+
+## 📋 快速参考
+
+<details open>
+<summary><b>常用命令速查</b></summary>
+
+```bash
+# 快速启动（推荐）
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
+
+# 验证安装
+claude /doctor                    # 检查 Claude Code 状态
+claude /permissions               # 查看权限模式
+node -v && python3 --version      # 检查开发工具
+
+# 故障排查
+echo $PROJECT_PATH                # 检查项目路径是否设置
+grep ' /workspace ' /proc/mounts  # 验证工作区挂载（容器内）
+```
+
+**关键路径**:
+- 你的项目: `/workspace`
+- 工具脚本: `/universal`
+- Claude 配置: `~/.claude/settings.json`
+
+**快速跳转**:
+- [快速开始](#快速开始-) | [故障排查](#故障排查) | [安全提醒](#安全提醒-) | [性能优化](#-性能优化)
+</details>
+
+---
+
 ## 先决条件
 
 - VS Code ≥ 1.105 + Dev Containers 扩展 ≥ 0.427
@@ -21,6 +53,63 @@
 - （可选）`npm i -g @devcontainers/cli` — 用于脚本辅助
 
 **受限网络/代理环境**：先阅读 [代理配置指南](docs/PROXY_SETUP.md)
+
+---
+
+## 🏗️ 架构概览
+
+<details>
+<summary><b>查看系统架构图</b></summary>
+
+```mermaid
+graph TB
+    subgraph Host["宿主机环境"]
+        VS["VS Code"]
+        Claude_Host["~/.claude/<br/>(Claude 凭证)"]
+        Project["你的项目<br/>/path/to/project"]
+        Repo["本仓库<br/>universal-devcontainer"]
+    end
+
+    subgraph Container["Dev Container"]
+        Workspace["/workspace<br/>(你的项目)"]
+        Universal["/universal<br/>(工具 & 脚本)"]
+        Claude_Container["~/.claude/<br/>(容器凭证)"]
+        Tools["开发工具<br/>Node.js, Python, etc."]
+        Firewall["防火墙<br/>(白名单)"]
+    end
+
+    subgraph External["外部服务"]
+        Claude_AI["Claude AI<br/>api.anthropic.com"]
+        GitHub["GitHub<br/>github.com"]
+        NPM["NPM Registry<br/>npmjs.org"]
+    end
+
+    VS -->|启动| Container
+    Project -->|只读挂载| Workspace
+    Repo -->|只读挂载| Universal
+    Claude_Host -->|只读挂载<br/>复制一次| Claude_Container
+
+    Tools -.->|访问| Workspace
+    Tools -.->|使用| Universal
+
+    Firewall -->|允许 HTTPS| Claude_AI
+    Firewall -->|允许 HTTPS| GitHub
+    Firewall -->|允许 HTTPS| NPM
+    Firewall -.->|阻止其他| External
+
+    style Container fill:#e1f5ff
+    style Host fill:#fff4e6
+    style External fill:#f3e5f5
+    style Firewall fill:#ffebee
+```
+
+**关键特性**：
+- 🔒 **只读挂载**: 宿主机文件安全保护
+- 🔑 **凭证复制**: 一次性从宿主机复制到容器
+- 🛡️ **防火墙**: 白名单控制所有出站流量
+- 🚀 **工具隔离**: 容器内环境不影响宿主机
+
+</details>
 
 ---
 

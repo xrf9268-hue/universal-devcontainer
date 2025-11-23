@@ -19,6 +19,36 @@ A pre-configured development container environment featuring:
 
 ---
 
+## 📋 Quick Reference
+
+<details open>
+<summary><b>Common Commands Cheat Sheet</b></summary>
+
+```bash
+# Quick Start (Recommended)
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/your/project
+
+# Verify Installation
+claude /doctor                    # Check Claude Code status
+claude /permissions               # View permissions mode
+node -v && python3 --version      # Check development tools
+
+# Troubleshooting
+echo $PROJECT_PATH                # Check if project path is set
+grep ' /workspace ' /proc/mounts  # Verify workspace mount (inside container)
+```
+
+**Key Paths**:
+- Your project: `/workspace`
+- Tool scripts: `/universal`
+- Claude config: `~/.claude/settings.json`
+
+**Quick Jump**:
+- [Quick Start](#quick-start-) | [Troubleshooting](#troubleshooting) | [Security Notice](#security-notice-) | [Performance](#-performance-optimization)
+</details>
+
+---
+
 ## Prerequisites
 
 - VS Code ≥ 1.105 + Dev Containers extension ≥ 0.427
@@ -26,6 +56,63 @@ A pre-configured development container environment featuring:
 - (Optional) `npm i -g @devcontainers/cli` — For script assistance
 
 **Restricted Network/Proxy Environment**: Read [Proxy Setup Guide](docs/PROXY_SETUP.md) first
+
+---
+
+## 🏗️ Architecture Overview
+
+<details>
+<summary><b>View System Architecture</b></summary>
+
+```mermaid
+graph TB
+    subgraph Host["Host Machine"]
+        VS["VS Code"]
+        Claude_Host["~/.claude/<br/>(Claude Credentials)"]
+        Project["Your Project<br/>/path/to/project"]
+        Repo["This Repository<br/>universal-devcontainer"]
+    end
+
+    subgraph Container["Dev Container"]
+        Workspace["/workspace<br/>(Your Project)"]
+        Universal["/universal<br/>(Tools & Scripts)"]
+        Claude_Container["~/.claude/<br/>(Container Credentials)"]
+        Tools["Dev Tools<br/>Node.js, Python, etc."]
+        Firewall["Firewall<br/>(Whitelist)"]
+    end
+
+    subgraph External["External Services"]
+        Claude_AI["Claude AI<br/>api.anthropic.com"]
+        GitHub["GitHub<br/>github.com"]
+        NPM["NPM Registry<br/>npmjs.org"]
+    end
+
+    VS -->|Launches| Container
+    Project -->|Read-only Mount| Workspace
+    Repo -->|Read-only Mount| Universal
+    Claude_Host -->|Read-only Mount<br/>Copy Once| Claude_Container
+
+    Tools -.->|Accesses| Workspace
+    Tools -.->|Uses| Universal
+
+    Firewall -->|Allow HTTPS| Claude_AI
+    Firewall -->|Allow HTTPS| GitHub
+    Firewall -->|Allow HTTPS| NPM
+    Firewall -.->|Block Others| External
+
+    style Container fill:#e1f5ff
+    style Host fill:#fff4e6
+    style External fill:#f3e5f5
+    style Firewall fill:#ffebee
+```
+
+**Key Features**:
+- 🔒 **Read-only Mounts**: Host files protected
+- 🔑 **Credential Copy**: One-time copy from host to container
+- 🛡️ **Firewall**: Whitelist controls all egress traffic
+- 🚀 **Tool Isolation**: Container environment doesn't affect host
+
+</details>
 
 ---
 
