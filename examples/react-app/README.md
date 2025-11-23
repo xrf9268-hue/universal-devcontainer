@@ -40,6 +40,24 @@ code .
 - ✅ Bypass permissions (trusted repo mode)
 - ✅ Plugins: commit-commands, pr-review-toolkit
 
+#### 🚀 Advanced Plugins Option
+
+Want more powerful Claude Code features? Use the **advanced plugins** configuration:
+
+```bash
+# Rename the advanced config to use it
+mv .devcontainer/devcontainer.advanced-plugins.json .devcontainer/devcontainer.json
+```
+
+The advanced configuration includes:
+- **frontend-dev-guidelines** - React/TypeScript best practices
+- **code-review** - Automated PR review with confidence scoring
+- **security-guidance** - Proactive security warnings
+- **context-preservation** - Auto-save important context
+- **commit-commands** - Git workflow automation
+
+See [claude-code-plugins documentation](../../src/features/claude-code-plugins/README.md) for details.
+
 ## 🏗️ Project Structure
 
 ```

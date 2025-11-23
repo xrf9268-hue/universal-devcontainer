@@ -1,0 +1,45 @@
+{
+  "id": "claude-code-plugins",
+  "version": "1.0.0",
+  "name": "Claude Code Advanced Plugins",
+  "description": "Production-ready Claude Code plugins from the community marketplace with enhanced development workflows, code review, and security features",
+  "documentationURL": "https://github.com/xrf9268-hue/universal-devcontainer/tree/main/src/features/claude-code-plugins",
+  "options": {
+    "installPlugins": {
+      "type": "string",
+      "enum": [
+        "essential",
+        "all",
+        "development",
+        "review",
+        "security",
+        "custom",
+        "none"
+      ],
+      "default": "essential",
+      "description": "Which plugin set to install: essential (recommended core plugins), all (all 9 plugins), development (SDK/feature dev), review (code review tools), security (security guidance), custom (use customPlugins), none (only add marketplace)"
+    },
+    "customPlugins": {
+      "type": "string",
+      "default": "",
+      "description": "Comma-separated list of plugin names for 'custom' option (e.g., 'commit-commands,code-review,feature-dev')"
+    },
+    "addMarketplace": {
+      "type": "boolean",
+      "default": true,
+      "description": "Add the claude-code-plugins marketplace to Claude settings (allows installing additional plugins manually)"
+    },
+    "replaceDefaultPlugins": {
+      "type": "boolean",
+      "default": false,
+      "description": "Replace default plugins from official marketplace with community plugins (not recommended - use both)"
+    }
+  },
+  "containerEnv": {
+    "CLAUDE_COMMUNITY_MARKETPLACE": "xrf9268-hue/claude-code-plugins"
+  },
+  "installsAfter": [
+    "ghcr.io/xrf9268-hue/features/claude-code",
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

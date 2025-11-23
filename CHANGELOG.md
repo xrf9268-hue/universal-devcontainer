@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+**Claude Code Advanced Plugins Feature**
+- **New Feature** (`src/features/claude-code-plugins/`)
+  - Integration with community marketplace (xrf9268-hue/claude-code-plugins)
+  - 9 production-ready plugins for enhanced development workflows
+  - 7 plugin installation modes: essential, all, development, review, security, custom, none
+  - Flexible configuration with customPlugins option
+  - Backward compatible with official Claude Code plugins
+  - Comprehensive documentation with examples
+  - Support for both official and community marketplaces simultaneously
+
+**Plugin Sets**:
+- **essential**: commit-commands, code-review, security-guidance, context-preservation
+- **all**: All 9 community plugins
+- **development**: agent-sdk-dev, feature-dev, plugin-developer-toolkit
+- **review**: code-review, pr-review-toolkit
+- **security**: security-guidance
+
+**Available Plugins**:
+1. agent-sdk-dev - Claude Agent SDK development tools
+2. commit-commands - Git workflow automation
+3. code-review - Automated PR review with confidence scoring
+4. feature-dev - 7-phase structured feature development
+5. security-guidance - Proactive security warnings (17 rules)
+6. context-preservation - Auto-save context before compaction
+7. frontend-dev-guidelines - React/TypeScript best practices
+8. pr-review-toolkit - 6 specialized review agents
+9. plugin-developer-toolkit - Create your own plugins
+
+**Examples**:
+- New example project: `examples/with-advanced-plugins/`
+- Updated React example with advanced plugins configuration
+- Comprehensive usage documentation
+
+**Documentation**:
+- Feature README: `src/features/claude-code-plugins/README.md`
+- Updated main README (Chinese and English)
+- Plugin integration examples
+
 ## [2.1.0] - 2025-11-23
 
 ### Added
