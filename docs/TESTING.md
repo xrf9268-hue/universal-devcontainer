@@ -220,7 +220,7 @@ cd examples/python-fastapi
 The test scripts are designed for CI/CD integration:
 
 ```yaml
-# .github/workflows/test-examples.yml
+# .github/workflows/test-python-examples.yml
 jobs:
   test:
     runs-on: ubuntu-latest

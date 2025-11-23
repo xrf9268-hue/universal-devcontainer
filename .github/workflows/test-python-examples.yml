@@ -1,17 +1,17 @@
-name: Test Examples
+name: Test Python Examples
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, claude/**]
     paths:
-      - 'examples/**'
+      - 'examples/python-*/**'
       - 'scripts/test-all-examples.sh'
-      - '.github/workflows/test-examples.yml'
+      - '.github/workflows/test-python-examples.yml'
   pull_request:
     paths:
-      - 'examples/**'
+      - 'examples/python-*/**'
       - 'scripts/test-all-examples.sh'
-      - '.github/workflows/test-examples.yml'
+      - '.github/workflows/test-python-examples.yml'
   schedule:
     # Run weekly on Monday at 00:00 UTC
     - cron: '0 0 * * 1'
