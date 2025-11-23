@@ -61,7 +61,6 @@ echo ""
 TEST_SCRIPTS=()
 while IFS= read -r -d '' test_script; do
     TEST_SCRIPTS+=("$test_script")
-    local example_name
     example_name=$(basename "$(dirname "$test_script")")
     echo "   Found: $example_name"
 done < <(find "$PROJECT_ROOT/examples" -name "test.sh" -type f -print0 | sort -z)
