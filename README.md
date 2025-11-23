@@ -363,22 +363,40 @@ universal-devcontainer/
 
 ## 故障排查
 
-### 登录故障排查卡片（浏览器授权/localhost 回调）
-- 现象：授权页点击 Authorize 一直转圈。
-- 快速自检：
-  - VS Code 左侧 “PORTS” 面板 → 是否出现容器端口（如 41521），并映射为 `localhost:<同号端口>`。
-  - 宿主机浏览器或终端直连 `http://127.0.0.1:<端口>/` 应返回 404（表示回调服务活着）。
-  - 宿主代理绕行需包含：`localhost, 127.0.0.1, ::1, host.docker.internal`（避免被代理/IPv6 影响）。
-- 详细步骤与常见代理示例（Shadowrocket/Clash/Surge/SwitchyOmega/PAC）：见 docs/PROXY_SETUP.md 的“宿主机绕行（localhost 回调必读）”。
+### 问题：启动时提示 "Workspace does not exist"
 
-### 快速排错卡片：打开项目（Workspace does not exist）
-- 推荐启动方式：`scripts/open-project.sh /path/to/your/project`（为每个项目开启独立 VS Code 进程，确保继承 `PROJECT_PATH`）。
-- 手动方式：从终端执行 `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`（不要从 Dock 启动 VS Code）。
-- 变更后重建：VS Code → “Dev Containers: Rebuild Without Cache”。
-- macOS 路径共享：Docker Desktop → Settings → Resources → File Sharing 包含项目父目录（如 `/Users`）。
-- 快速自检：
-  - 宿主机：`echo $PROJECT_PATH`、`test -d "$PROJECT_PATH" && echo OK || echo MISSING`
-  - 容器内：查看启动横幅（MOTD）或 `grep ' /workspace ' /proc/mounts` 校验挂载；脚本路径在 `/universal/.devcontainer/...`。
+**原因**：宿主 VS Code 进程未继承 `PROJECT_PATH`，或 Docker Desktop 未共享该路径，导致 `/workspace` 挂载失败。
+
+**解决方法**：
+1. **推荐方式**：使用脚本启动 `scripts/open-project.sh /path/to/your/project`
+2. **手动方式**：从终端执行 `export PROJECT_PATH=/path/to/your/project && code /path/to/universal-devcontainer`（不要从 Dock 启动）
+3. **配置方式**：在 VS Code 用户设置中添加：
+   ```json
+   {
+     "dev.containers.defaultEnv": {
+       "PROJECT_PATH": "/path/to/your/project"
+     }
+   }
+   ```
+4. **macOS 路径共享**：Docker Desktop → Settings → Resources → File Sharing 包含项目父目录（如 `/Users`）
+
+**快速检查**：
+- 宿主机：`echo $PROJECT_PATH && test -d "$PROJECT_PATH" && echo OK || echo MISSING`
+- 容器内：查看启动横幅（MOTD）或执行 `grep ' /workspace ' /proc/mounts`
+
+### 问题：Claude Code 登录失败（OAuth 回调）
+
+**现象**：浏览器授权页点击 Authorize 后一直转圈。
+
+**原因**：回调服务在容器内监听，但宿主机浏览器无法访问容器的 localhost 端口。
+
+**解决方法**：
+1. 检查 VS Code "PORTS" 面板，确认容器端口已自动转发到宿主机
+2. 手动转发端口（如果自动转发失败）
+3. 确保宿主机代理绕行包含：`localhost, 127.0.0.1, ::1, host.docker.internal`
+4. 或使用 API Key 登录方式：设置 `CLAUDE_LOGIN_METHOD=console` 和 `ANTHROPIC_API_KEY`
+
+**详细代理配置**：见 [docs/PROXY_SETUP.md](docs/PROXY_SETUP.md)
 
 ### 问题：容器无法访问外网
 
@@ -402,34 +420,12 @@ curl -I https://api.github.com
 
 ### 问题：路径权限错误（macOS/Linux）
 
+确保父目录可遍历：
 ```bash
-# 确保父目录可遍历
 chmod o+rx /Users/<username>
 chmod o+rx /Users/<username>/developer
 chmod o+rx /Users/<username>/developer/<project>
 ```
-
-### 问题：extends 找不到配置文件
-
-**现象**：提示 "missing image information"
-
-**解决**：
-- **方法 1**：使用 `github:owner/repo` 而非 `file:相对路径`
-- **方法 2**：检查相对路径是否正确（从项目根目录到配置文件的路径）
-- **方法 3**：使用方法 1（VS Code UI 流程），无需 extends
-
-### 问题：授权页面一直转圈（OAuth 本地回调 localhost）
-
-**现象**：打开 `https://claude.ai/oauth/authorize?...redirect_uri=http://localhost:<随机端口>/callback` 点击 Authorize 后页面一直加载。
-
-**根因**：回调服务在容器内监听 `127.0.0.1:<随机端口>`，而浏览器在宿主机访问 `localhost:<随机端口>`。未进行端口转发时，宿主机的本地回环无法到达容器，回调请求失败。
-
-**解决**：
-- 已内置：`devcontainer.json` 启用动态端口自动转发（`portsAttributes.otherPortsAttributes` + `remote.autoForwardPorts=true`）。出现回调端口监听时，VS Code 会自动将容器端口转发到宿主机相同端口；通常无需手动操作。
-- 如仍失败：
-  - 观察授权 URL 中的端口号（如 `63497`），在 VS Code 左侧 “PORTS” 面板手动 Forward 该端口。
-  - 或在容器内执行登录时，用 `ss -lntp | grep <端口>` 确认监听后再转发。
-  - 规避法：设置 `CLAUDE_LOGIN_METHOD=console` 并提供 `ANTHROPIC_API_KEY`，改走控制台/API Key 登录，绕开浏览器本地回调。
 
 ---
 
@@ -832,17 +828,3 @@ rollback-devcontainer
 ## 许可证
 
 MIT License — 详见 `LICENSE` 文件
-### 问题：启动时提示 “Workspace does not exist”
-
-**原因**：宿主 VS Code 进程未继承 `PROJECT_PATH`，或 Docker Desktop 未共享该路径，导致 `/workspace` 挂载失败。
-
-**解决**：
-- 推荐使用脚本启动：`scripts/open-project.sh <你的项目路径>`（脚本会以独立 VS Code 实例启动，继承环境变量）。
-- 或在 VS Code 用户设置中配置：
-  ```jsonc
-  {
-    "dev.containers.defaultEnv": { "PROJECT_PATH": "/path/to/your/project" }
-  }
-  ```
-- macOS: Docker Desktop → Settings → Resources → File Sharing，确保包含 `/Users` 或你的项目父目录。
-- 仍失败时，先验证：`echo $PROJECT_PATH && test -d "$PROJECT_PATH" && echo OK || echo MISSING`。
