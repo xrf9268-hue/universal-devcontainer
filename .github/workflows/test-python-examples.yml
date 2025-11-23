@@ -17,10 +17,16 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:  # Allow manual triggers
 
+# Restrict permissions to minimum required (security best practice)
+permissions:
+  contents: read
+
 jobs:
   test-python-examples:
     name: Test ${{ matrix.example }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -30,10 +36,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c  # v5.0.0
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -50,7 +58,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8  # v4.3.0
         with:
           name: test-results-${{ matrix.example }}
           path: examples/${{ matrix.example }}/test-*.log
@@ -59,14 +67,18 @@ jobs:
   test-all-examples:
     name: Integration Test Runner
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: test-python-examples
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c  # v5.0.0
         with:
           python-version: '3.12'
 
@@ -77,7 +89,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8  # v4.3.0
         with:
           name: integration-test-results
           path: |
@@ -88,6 +100,8 @@ jobs:
   summary:
     name: Test Summary
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [test-python-examples, test-all-examples]
     if: always()
 
@@ -109,3 +123,4 @@ jobs:
             echo "- ${{ needs.test-all-examples.result == 'success' && '✅' || '❌' }} Integration tests: ${{ needs.test-all-examples.result }}" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+
