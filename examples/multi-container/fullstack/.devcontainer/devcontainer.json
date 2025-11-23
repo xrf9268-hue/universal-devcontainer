@@ -1,0 +1,83 @@
+{
+  "name": "Full-Stack Multi-Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace/examples/multi-container/fullstack",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {
+      "loginMethod": "host",
+      "bypassPermissions": true
+    },
+    "ghcr.io/xrf9268-hue/features/toolset-database:1": {
+      "installPgcli": true,
+      "installRedisCli": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "prisma.prisma",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg"
+      ],
+      "settings": {
+        "sqltools.connections": [
+          {
+            "name": "PostgreSQL",
+            "driver": "PostgreSQL",
+            "server": "db",
+            "port": 5432,
+            "database": "myapp",
+            "username": "postgres",
+            "password": "password"
+          }
+        ]
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 3001, 5432, 6379, 5050],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    },
+    "5050": {
+      "label": "PgAdmin",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "npm install && cd backend && pip install -r requirements.txt",
+
+  "remoteUser": "node",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/host-claude,type=bind,readonly"
+  ],
+
+  "postStartCommand": "bash ~/.claude/import-host-settings.sh 2>/dev/null || true"
+}

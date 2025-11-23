@@ -1,0 +1,61 @@
+{
+  "name": "Microservices Architecture",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace/examples/multi-container/microservices",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.21"
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code:1": {
+      "loginMethod": "host",
+      "bypassPermissions": true
+    },
+    "ghcr.io/xrf9268-hue/features/toolset-database:1": {},
+    "ghcr.io/xrf9268-hue/features/toolset-devtools:1": {
+      "includeTools": "essential"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "golang.go",
+        "humao.rest-client"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000, 3001, 3002, 3003, 5432, 5672, 15672, 6379, 8500],
+  "portsAttributes": {
+    "3000": {"label": "API Gateway"},
+    "3001": {"label": "User Service"},
+    "3002": {"label": "Product Service"},
+    "3003": {"label": "Order Service"},
+    "5432": {"label": "PostgreSQL"},
+    "5672": {"label": "RabbitMQ"},
+    "15672": {"label": "RabbitMQ UI"},
+    "6379": {"label": "Redis"},
+    "8500": {"label": "Consul UI"}
+  },
+
+  "postCreateCommand": "echo 'Microservices environment ready!'",
+
+  "remoteUser": "node",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/host-claude,type=bind,readonly"
+  ],
+
+  "postStartCommand": "bash ~/.claude/import-host-settings.sh 2>/dev/null || true"
+}

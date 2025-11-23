@@ -562,7 +562,92 @@ scripts/configure-claude-mode.sh status
 ```
 包含: `kubectl`, `helm`, `k9s`, `kubectx`, `kustomize`, `skaffold`
 
-**查看详细文档**: [src/features/](src/features/)
+
+## 🚀 高级功能（Phase 5）
+
+### 多容器架构
+
+支持复杂的多服务应用，使用 Docker Compose 编排多个容器：
+
+**示例 1: [全栈应用](examples/multi-container/fullstack/)**
+- **技术栈**: React + FastAPI + PostgreSQL + Redis
+- **服务**: 前端、后端、数据库、缓存
+- **适用**: Web 应用、SaaS 平台
+
+**示例 2: [微服务架构](examples/multi-container/microservices/)**
+- **技术栈**: Node.js + Python + Go + PostgreSQL + RabbitMQ
+- **服务**: API网关 + 3个微服务 + 消息队列 + 服务发现
+- **适用**: 大型企业应用、分布式系统
+
+[查看多容器示例 →](examples/multi-container/README.md)
+
+### 项目模板生成器
+
+一键创建新项目，预配置 Dev Container：
+
+```bash
+# 交互式创建
+scripts/create-project.sh
+
+# 直接创建
+scripts/create-project.sh my-app react-ts
+scripts/create-project.sh my-api fastapi
+scripts/create-project.sh my-stack fullstack
+```
+
+**可用模板**:
+- react-ts, nextjs (前端)
+- express-ts, fastapi, django, go-gin (后端)
+- fullstack, microservices (复杂架构)
+
+### 企业合规功能
+
+#### 审计日志 (audit-logging)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/audit-logging:1": {
+      "retentionDays": 90,
+      "enableSIEM": false
+    }
+  }
+}
+```
+- 记录所有文件操作、网络请求、命令执行
+- SOC 2, ISO 27001, HIPAA 合规
+- JSON 格式，可集成 SIEM 系统
+
+#### 离线模式 (offline-mode)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/offline-mode:1": {
+      "blockAllExternal": true
+    }
+  }
+}
+```
+- 完全阻断外网访问（气隙环境）
+- ITAR, 涉密项目合规
+- 本地服务正常工作
+
+#### GDPR 合规 (compliance-gdpr)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/compliance-gdpr:1": {
+      "enablePIIDetection": true,
+      "dataRetentionDays": 30
+    }
+  }
+}
+```
+- PII 检测、数据加密
+- 数据擦除（被遗忘权）
+- 数据导出（可移植性）
+- GDPR Article 5, 17, 20 合规
+
+[查看合规功能详情 →](src/features/)
 
 ## 🔄 更新和维护
 

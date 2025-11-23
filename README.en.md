@@ -663,7 +663,92 @@ Includes: `aws`, `gcloud`, `az`, `doctl`
 ```
 Includes: `kubectl`, `helm`, `k9s`, `kubectx`, `kustomize`, `skaffold`
 
-**See detailed docs**: [src/features/](src/features/)
+
+## 🚀 Advanced Capabilities (Phase 5)
+
+### Multi-Container Architecture
+
+Support complex multi-service applications using Docker Compose:
+
+**Example 1: [Full-Stack Application](examples/multi-container/fullstack/)**
+- **Stack**: React + FastAPI + PostgreSQL + Redis
+- **Services**: Frontend, Backend, Database, Cache
+- **Use Case**: Web apps, SaaS platforms
+
+**Example 2: [Microservices Architecture](examples/multi-container/microservices/)**
+- **Stack**: Node.js + Python + Go + PostgreSQL + RabbitMQ
+- **Services**: API Gateway + 3 Microservices + Message Queue + Service Discovery
+- **Use Case**: Large enterprise apps, distributed systems
+
+[View Multi-Container Examples →](examples/multi-container/README.md)
+
+### Project Template Generator
+
+Create new projects with one command:
+
+```bash
+# Interactive mode
+scripts/create-project.sh
+
+# Direct creation
+scripts/create-project.sh my-app react-ts
+scripts/create-project.sh my-api fastapi
+scripts/create-project.sh my-stack fullstack
+```
+
+**Available Templates**:
+- react-ts, nextjs (Frontend)
+- express-ts, fastapi, django, go-gin (Backend)
+- fullstack, microservices (Complex architectures)
+
+### Enterprise Compliance Features
+
+#### Audit Logging (audit-logging)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/audit-logging:1": {
+      "retentionDays": 90,
+      "enableSIEM": false
+    }
+  }
+}
+```
+- Log all file operations, network requests, commands
+- SOC 2, ISO 27001, HIPAA compliant
+- JSON format, SIEM integration
+
+#### Offline Mode (offline-mode)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/offline-mode:1": {
+      "blockAllExternal": true
+    }
+  }
+}
+```
+- Complete network isolation (air-gapped)
+- ITAR, classified projects compliant
+- Local services still work
+
+#### GDPR Compliance (compliance-gdpr)
+```json
+{
+  "features": {
+    "ghcr.io/xrf9268-hue/features/compliance-gdpr:1": {
+      "enablePIIDetection": true,
+      "dataRetentionDays": 30
+    }
+  }
+}
+```
+- PII detection, data encryption
+- Data erasure (Right to be Forgotten)
+- Data export (Portability)
+- GDPR Article 5, 17, 20 compliant
+
+[View Compliance Features →](src/features/)
 
 ## 🔄 Updates and Maintenance
 
