@@ -11,6 +11,8 @@
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] **Dependency update**
+- [ ] **Security fix**
 - [ ] Documentation update
 - [ ] Code refactoring
 - [ ] Performance improvement
@@ -32,6 +34,32 @@ Relates to #
 -
 -
 
+## Dependency Update Checklist
+
+<!-- Required if updating dependencies. Mark with "x" or "N/A" -->
+
+- [ ] Reviewed package changelog for breaking changes
+- [ ] Updated hash for hash-pinned dependencies (if applicable)
+- [ ] Ran integration tests (`./scripts/test-all-examples.sh`)
+- [ ] Tested specific examples (`cd examples/*/` && `./test.sh`)
+- [ ] Checked for CVEs and documented in commit message
+- [ ] Verified compatibility with other dependencies
+- [ ] Updated install script checksums (if applicable)
+
+**CVEs Fixed:**
+<!--
+List any CVEs fixed by this update:
+- CVE-YYYY-XXXXX (SEVERITY): Description
+-->
+
+**Test Results:**
+<!--
+Example:
+✅ python-django: All tests passed
+✅ python-fastapi: All tests passed
+✅ Integration tests: PASSED
+-->
+
 ## Testing Checklist
 
 <!-- Mark completed items with an "x" -->
@@ -44,6 +72,8 @@ Relates to #
 
 ### Functionality
 - [ ] Changes work as expected in a clean Dev Container
+- [ ] **Integration tests pass** (`./scripts/test-all-examples.sh`)
+- [ ] **Example tests pass** (individual `test.sh` scripts)
 - [ ] All examples still work correctly
 - [ ] New features have been tested
 - [ ] Edge cases have been considered
@@ -52,10 +82,16 @@ Relates to #
 - [ ] README updated (if applicable)
 - [ ] Code comments added for complex logic
 - [ ] New features documented
+- [ ] [TESTING.md](docs/TESTING.md) updated (if changing tests)
+- [ ] [CONTRIBUTING.md](CONTRIBUTING.md) updated (if changing workflow)
 - [ ] CHANGELOG updated (if significant change)
 
 ### Security
 - [ ] No secrets or credentials committed
+- [ ] Dependencies pinned with versions/hashes
+- [ ] Install scripts use checksum verification
+- [ ] Curl commands use `-fsSL` flags
+- [ ] **Security scans passed** (Bandit, Safety)
 - [ ] .gitignore is up to date
 - [ ] No security vulnerabilities introduced
 - [ ] Compliance features still work (if applicable)

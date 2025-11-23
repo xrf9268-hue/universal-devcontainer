@@ -101,6 +101,131 @@ To verify the installation is using hash pinning:
 pip3 install --require-hashes -r requirements-pgcli.txt
 ```
 
+## Testing Dependency Updates
+
+**CRITICAL:** Always test dependency updates before deploying or merging.
+
+### Pre-Update Checklist
+
+Before updating any hash-pinned dependency:
+
+1. ✅ Review the package changelog for breaking changes
+2. ✅ Check for known security vulnerabilities
+3. ✅ Verify compatibility with other dependencies
+4. ✅ Have a rollback plan
+
+### Testing Procedure
+
+When updating hash-pinned dependencies:
+
+```bash
+# 1. Update the version and hash
+pip download pgcli==4.1.0 --no-deps
+pip hash pgcli-4.1.0-py3-none-any.whl
+# Update requirements-pgcli.txt with new version and hash
+
+# 2. Create test environment
+python3 -m venv test-env
+source test-env/bin/activate
+
+# 3. Install with new hash
+pip install --require-hashes -r requirements-pgcli.txt
+
+# 4. Verify functionality
+pgcli --version
+pgcli --help
+
+# 5. Run integration tests (if available)
+# See: ../../examples/python-*/test.sh
+
+# 6. Check for new vulnerabilities
+pip install safety
+safety check -r requirements-pgcli.txt
+
+# 7. Cleanup
+deactivate
+rm -rf test-env
+```
+
+### Example Testing Workflow
+
+For Python example dependency updates:
+
+```bash
+# Update Django version
+cd examples/python-django
+# Edit requirements.txt: Django==5.0.0 → Django==5.1.14
+
+# Run comprehensive tests
+./test.sh
+
+# If tests pass, commit the change
+git add requirements.txt
+git commit -m "fix(deps): update Django 5.0.0 → 5.1.14
+
+Fixes CVEs:
+- CVE-2025-64459 (CRITICAL): SQL injection
+- CVE-2024-42005 (CRITICAL): SQL injection in QuerySet.values()
+
+Breaking changes: None
+Test results: All tests passed (./test.sh)
+"
+```
+
+### Automated Testing
+
+The project includes automated test scripts for all Python examples:
+
+```bash
+# Test all examples
+./scripts/test-all-examples.sh
+
+# Test specific example
+cd examples/python-django && ./test.sh
+cd examples/python-fastapi && ./test.sh
+```
+
+See [TESTING.md](../../../docs/TESTING.md) for detailed testing documentation.
+
+### CVE Checking
+
+Before and after updates, check for known vulnerabilities:
+
+```bash
+# Using Safety
+pip install safety
+safety check -r requirements.txt
+
+# Using pip-audit (alternative)
+pip install pip-audit
+pip-audit -r requirements.txt
+
+# Check specific package
+safety check --package Django==5.1.14
+```
+
+### Documenting Updates
+
+Always document dependency updates in commit messages:
+
+```
+fix(security): update Python dependencies to address CVEs
+
+Django Example (examples/python-django/requirements.txt):
+- Update Django: 5.0.0 → 5.1.14
+  - Fixes CVE-2025-64459 (CRITICAL): SQL injection
+  - Fixes CVE-2024-42005 (CRITICAL): SQL injection
+
+Testing:
+- Ran ./test.sh successfully
+- All system checks passed
+- Database migrations working
+- Security scan clean
+
+Breaking changes: None identified
+Compatibility: Verified with djangorestframework 3.15.2
+```
+
 ## References
 
 - [PEP 458 - Secure PyPI Downloads](https://www.python.org/dev/peps/pep-0458/)

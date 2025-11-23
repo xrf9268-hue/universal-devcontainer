@@ -57,6 +57,13 @@ bash -n .devcontainer/*.sh
 # Run shellcheck (if available)
 shellcheck scripts/*.sh .devcontainer/*.sh || true
 
+# Test Python examples (REQUIRED for dependency changes)
+./scripts/test-all-examples.sh
+
+# Or test specific examples
+cd examples/python-django && ./test.sh
+cd examples/python-fastapi && ./test.sh
+
 # Test the dev container
 # Rebuild and verify all features work
 ```
@@ -147,8 +154,12 @@ Before submitting a PR:
 - [ ] **ShellCheck passes**: Run on modified scripts
 - [ ] **Documentation updated**: READMEs reflect changes
 - [ ] **Examples work**: Test in clean container
+- [ ] **Integration tests pass**: `./scripts/test-all-examples.sh`
+- [ ] **Security scans clean**: Bandit and Safety checks
 - [ ] **No secrets committed**: Check .gitignore
 - [ ] **Commit messages formatted**: Follow convention
+
+See [TESTING.md](docs/TESTING.md) for comprehensive testing guide.
 
 ## 💻 Coding Standards
 
@@ -469,11 +480,101 @@ Contributors will be:
 - Mentioned in release notes
 - Credited in commit messages
 
+## 🔒 Dependency Updates
+
+### Python Dependencies (requirements.txt)
+
+**When updating Python packages in examples:**
+
+1. **Check for breaking changes:**
+   - Review package changelog
+   - Look for deprecation warnings
+   - Check compatibility matrix
+
+2. **Update requirements.txt:**
+   ```bash
+   # Update version
+   Django==5.1.14  # was 5.0.0
+   ```
+
+3. **Run tests (REQUIRED):**
+   ```bash
+   cd examples/python-django
+   ./test.sh
+   ```
+
+4. **Document CVEs fixed:**
+   ```bash
+   git commit -m "fix(deps): update Django 5.0.0 → 5.1.14
+
+   Fixes CVEs:
+   - CVE-2025-64459 (CRITICAL): SQL injection
+   - CVE-2024-42005 (CRITICAL): SQL injection in QuerySet.values()
+
+   Breaking changes: None
+   Test results: All tests passed (./test.sh)
+   "
+   ```
+
+### Hash-Pinned Dependencies
+
+**For hash-pinned packages (src/features/*/requirements-*.txt):**
+
+1. **Get new hash:**
+   ```bash
+   pip download pgcli==4.1.0 --no-deps
+   pip hash pgcli-4.1.0-py3-none-any.whl
+   ```
+
+2. **Update requirements file:**
+   ```bash
+   pgcli==4.1.0 \
+       --hash=sha256:new_hash_here
+   ```
+
+3. **Test installation:**
+   ```bash
+   pip install --require-hashes -r requirements-pgcli.txt
+   ```
+
+4. **Check vulnerabilities:**
+   ```bash
+   safety check -r requirements-pgcli.txt
+   ```
+
+See [SECURITY.md](src/features/toolset-database/SECURITY.md) for detailed hash pinning guide.
+
+### Install Script Checksums
+
+**When upstream scripts change:**
+
+1. **Get new checksum:**
+   ```bash
+   curl -fsSL https://aka.ms/InstallAzureCLIDeb | sha256sum
+   ```
+
+2. **Update in install.sh:**
+   ```bash
+   AZURE_CHECKSUM="new_hash_here"
+   # Checksum verified on 2025-11-23
+   ```
+
+3. **Document why:**
+   ```bash
+   git commit -m "fix(security): update Azure CLI installer checksum
+
+   Upstream script updated on 2025-11-23
+   New checksum: abc123...
+   Verified: az --version
+   "
+   ```
+
 ## 📞 Getting Help
 
 - **Questions**: Open a Discussion
 - **Bugs**: Open an Issue
 - **Security**: See SECURITY.md
+- **Testing**: See [TESTING.md](docs/TESTING.md)
 - **Complex Topics**: Tag maintainers
 
 ## 📜 License
