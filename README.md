@@ -460,6 +460,40 @@ chmod o+rx /Users/<username>/developer/<project>
 
 ---
 
+## 🔄 更新和维护
+
+### 增量更新（无需重建容器）
+
+从 v2.1.0 开始，支持**容器内增量更新**，无需重建容器。
+
+**快速更新**：
+```bash
+# 检查更新
+check-updates
+
+# 应用更新
+update-devcontainer
+
+# 如有问题，回滚
+rollback-devcontainer
+```
+
+**支持更新的内容**：
+- ✅ 配置文件（`.devcontainer/*`）
+- ✅ 脚本文件（`scripts/*`）
+- ✅ Claude Code CLI（可选）
+- ✅ Claude Code 插件（可选）
+- ✅ 文档和版本跟踪
+
+**性能**：
+- 配置更新：~10 秒
+- 包含 Claude CLI 更新：~1-2 分钟
+- 自动备份，支持一键回滚
+
+**详细文档**：见 [`docs/UPDATES.md`](docs/UPDATES.md)
+
+---
+
 ## 更新日志
 
 ### v2.0.0（简化版本）— 2025-01

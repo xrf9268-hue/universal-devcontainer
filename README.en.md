@@ -561,6 +561,40 @@ This project follows a multi-phase implementation plan. See [IMPLEMENTATION_PLAN
 
 ---
 
+## 🔄 Updates and Maintenance
+
+### Incremental Updates (No Container Rebuild)
+
+Starting from v2.1.0, supports **in-container incremental updates** without rebuilding.
+
+**Quick Update**:
+```bash
+# Check for updates
+check-updates
+
+# Apply updates
+update-devcontainer
+
+# Rollback if needed
+rollback-devcontainer
+```
+
+**What Gets Updated**:
+- ✅ Configuration files (`.devcontainer/*`)
+- ✅ Scripts (`scripts/*`)
+- ✅ Claude Code CLI (optional)
+- ✅ Claude Code plugins (optional)
+- ✅ Documentation and version tracking
+
+**Performance**:
+- Config updates: ~10 seconds
+- With Claude CLI update: ~1-2 minutes
+- Automatic backup with one-click rollback
+
+**Full Documentation**: See [`docs/UPDATES.md`](docs/UPDATES.md)
+
+---
+
 ## Changelog
 
 ### v2.0.0 (Simplified Version) — January 2025
