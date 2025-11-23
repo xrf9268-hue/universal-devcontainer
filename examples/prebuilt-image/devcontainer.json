@@ -1,0 +1,78 @@
+{
+  "name": "Project using Pre-built Image",
+
+  // Use pre-built image instead of building from Dockerfile
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
+
+  // Alternative: Use specific version for stability
+  // "image": "ghcr.io/xrf9268-hue/universal-devcontainer:2.1",
+
+  "workspaceFolder": "/workspace",
+  "remoteUser": "vscode",
+
+  // Add Dev Container Features on top of pre-built image
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "os-provided"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Configure Claude Code and Firewall
+  "postCreateCommand": "sudo -E bash /universal/.devcontainer/init-firewall.sh || true; bash /universal/.devcontainer/bootstrap-claude.sh",
+  "postStartCommand": "sudo -E bash /universal/.devcontainer/init-firewall.sh || true",
+
+  // Required capabilities for firewall
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+
+  // Mount configuration (same as template)
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/universal,type=bind",
+    "source=${localEnv:PROJECT_PATH},target=/workspace,type=bind",
+    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=${localEnv:HOME}/.claude,target=/host-claude,type=bind,readonly"
+  ],
+
+  // Environment variables
+  "remoteEnv": {
+    "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
+    "CLAUDE_LOGIN_METHOD": "${localEnv:CLAUDE_LOGIN_METHOD}",
+    "CLAUDE_ORG_UUID": "${localEnv:CLAUDE_ORG_UUID}",
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+    "TZ": "${localEnv:TZ:UTC}",
+    "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "STRICT_PROXY_ONLY": "${localEnv:STRICT_PROXY_ONLY:0}"
+  },
+
+  "containerEnv": {
+    "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
+    "TZ": "${localEnv:TZ:UTC}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  },
+
+  // VS Code customizations
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 5173, 8000, 9003],
+  "waitFor": "postStartCommand"
+}

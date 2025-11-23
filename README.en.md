@@ -99,6 +99,60 @@ code /path/to/universal-devcontainer
 - Your external project: `/workspace`
 - This repository (tools & scripts): `/universal`
 
+### Method 4: Using Dev Container Template (Recommended for New Projects) 📦
+
+**Use Case**: Create standalone Dev Container configuration for your own projects
+
+Starting from v2.1.0, this project provides a **Dev Container Template** that allows you to quickly generate configuration for your project without depending on this repository.
+
+**Steps**:
+
+1. Open your project in VS Code
+2. Press `Cmd/Ctrl + Shift + P` to open Command Palette
+3. Select "Dev Containers: Add Dev Container Configuration Files..."
+4. Select "Show All Definitions..."
+5. Search and select "Universal Dev Container with Claude Code"
+6. Configure options:
+   - **Claude Login Method**: `host` (recommended) / `api-key` / `manual`
+   - **Enable Firewall**: `true` (default, whitelist-based firewall) / `false`
+   - **Strict Proxy Mode**: `true` / `false` (default, force all traffic through proxy)
+   - **Timezone**: Your timezone (e.g., `America/New_York`, `UTC`)
+   - **Enable Sandbox**: `true` / `false` (default, command sandbox)
+   - **Bypass Permissions**: `true` (default, auto-approve) / `false` (require approval)
+7. Click "Reopen in Container"
+
+**Template Features**:
+- ✅ In-project configuration (`.devcontainer/` directory in your project)
+- ✅ Customizable options (configure via UI, no manual editing)
+- ✅ Independent (doesn't depend on this repository)
+- ✅ Shareable (team members can clone and use directly)
+
+**Manual Configuration** (without UI):
+
+Create `.devcontainer/devcontainer.json` in your project root:
+
+```json
+{
+  "name": "My Project",
+  "image": "ghcr.io/xrf9268-hue/universal-claude:latest",
+  "remoteEnv": {
+    "PROJECT_PATH": "${localWorkspaceFolder}"
+  }
+}
+```
+
+**Template vs Repository Approach Comparison**:
+
+| Feature | Repository Approach (Method 1-3) | Dev Container Template (Method 4) |
+|---------|----------------------------------|-----------------------------------|
+| Use Case | Temporary development, shared config | New projects, team collaboration |
+| Config Location | This repository | In-project `.devcontainer/` |
+| Flexibility | Manual env vars | UI configuration options |
+| Dependencies | Requires this repo | Independent (config in project) |
+| Updates | git pull this repo | Re-apply template or manual update |
+
+📖 **Template Full Documentation**: See [`src/universal-claude/README.md`](src/universal-claude/README.md)
+
 ---
 
 ## Verify Installation
@@ -291,6 +345,48 @@ universal-devcontainer/
 
 ---
 
+## ⚡ Performance Optimization
+
+### Using Pre-built Image (Recommended)
+
+Starting from v2.1.0, we provide **pre-built container images** for significantly faster startup.
+
+**Performance Comparison**:
+
+| Method | First Time | Subsequent |
+|--------|-----------|------------|
+| Build from Dockerfile | ~10 min | ~30 sec |
+| Pre-built image | ~1 min (pull) | ~5 sec |
+
+**Improvement**: 70% faster first-time setup, 80% faster subsequent starts
+
+**Usage**:
+
+Create `.devcontainer/devcontainer.json` in your project:
+
+```json
+{
+  "name": "My Project",
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
+  "remoteEnv": {
+    "PROJECT_PATH": "${localWorkspaceFolder}"
+  }
+}
+```
+
+**Image Tags**:
+- `latest` - Latest stable release (recommended)
+- `2.1`, `2` - Specific versions (pinned)
+- `main` - Development version (main branch)
+
+**Supported Architectures**:
+- `linux/amd64` (Intel/AMD)
+- `linux/arm64` (Apple Silicon, ARM servers)
+
+**Complete Example**: See [`examples/prebuilt-image/`](examples/prebuilt-image/)
+
+---
+
 ## Troubleshooting
 
 ### Login Troubleshooting Card (Browser Auth/localhost Callback)
@@ -462,6 +558,40 @@ This project follows a multi-phase implementation plan. See [IMPLEMENTATION_PLAN
 - **Phase 4** (v3.0.0 - Q3 2025): Framework examples, enhanced modes
 - **Phase 5** (v3.0.0): Multi-container support, project generator
 - **Phase 6** (Ongoing): Community building, video tutorials
+
+---
+
+## 🔄 Updates and Maintenance
+
+### Incremental Updates (No Container Rebuild)
+
+Starting from v2.1.0, supports **in-container incremental updates** without rebuilding.
+
+**Quick Update**:
+```bash
+# Check for updates
+check-updates
+
+# Apply updates
+update-devcontainer
+
+# Rollback if needed
+rollback-devcontainer
+```
+
+**What Gets Updated**:
+- ✅ Configuration files (`.devcontainer/*`)
+- ✅ Scripts (`scripts/*`)
+- ✅ Claude Code CLI (optional)
+- ✅ Claude Code plugins (optional)
+- ✅ Documentation and version tracking
+
+**Performance**:
+- Config updates: ~10 seconds
+- With Claude CLI update: ~1-2 minutes
+- Automatic backup with one-click rollback
+
+**Full Documentation**: See [`docs/UPDATES.md`](docs/UPDATES.md)
 
 ---
 
