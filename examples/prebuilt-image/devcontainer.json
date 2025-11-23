@@ -73,6 +73,6 @@
     }
   },
 
-  "forwardPorts": [3000, 5173, 8000, 9003],
+  "forwardPorts": [3000, 5173, 8000, 9003, 1024, 4444],
   "waitFor": "postStartCommand"
 }

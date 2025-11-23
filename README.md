@@ -125,7 +125,7 @@ code /path/to/universal-devcontainer
 ```json
 {
   "name": "My Project",
-  "image": "ghcr.io/xrf9268-hue/universal-claude:latest",
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
   "remoteEnv": {
     "PROJECT_PATH": "${localWorkspaceFolder}"
   }
@@ -329,7 +329,7 @@ claude /plugins search commit-commands
 - `reviewing-prs` skill — 代码审查 AI 技能
 
 ### 端口转发
-默认转发：`3000`, `5173`, `8000`, `9003`
+默认转发：`3000`, `5173`, `8000`, `9003`, `1024`, `4444`
 
 ### 预装工具
 - **开发工具**：Node.js (LTS), Python 3.12, GitHub CLI
@@ -348,11 +348,18 @@ universal-devcontainer/
 │   ├── init-firewall.sh        # 防火墙规则
 │   └── setup-proxy.sh          # 代理配置
 ├── scripts/
-│   └── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
+│   ├── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
+│   ├── validate-all.sh         # 验证套件
+│   ├── test-container.sh       # 容器测试
+│   └── security-scan.sh        # 安全扫描
 ├── .claude/
 │   └── settings.local.json     # 项目级权限配置
-└── docs/
-    └── PROXY_SETUP.md          # 代理配置详细指南
+├── docs/
+│   ├── PROXY_SETUP.md          # 代理配置详细指南
+│   ├── SECURITY.md             # 安全策略和最佳实践
+│   └── SECURITY_AUDIT.md       # 安全审计报告
+└── .github/
+    └── workflows/              # CI/CD 流水线
 ```
 
 ---
@@ -735,7 +742,7 @@ scripts/create-project.sh my-stack fullstack
 **Issue 模板**：
 - 🐛 [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) - 详细的 Bug 报告模板
 - 💡 [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) - 功能请求模板
-- 📋 [配置](. github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
+- 📋 [配置](.github/ISSUE_TEMPLATE/config.yml) - 引导用户到 Discussions/Security
 
 **PR 模板**：
 - ✅ [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
@@ -880,3 +887,8 @@ rollback-devcontainer
 ## 许可证
 
 MIT License — 详见 `LICENSE` 文件
+
+---
+
+**版本**: 2.0.0
+**最后更新**: 2025-11-23
