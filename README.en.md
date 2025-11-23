@@ -348,14 +348,13 @@ Firewall will additionally allow these domains.
 
 ## Built-in Features
 
-### Pre-installed Plugins
-- `commit-commands` — Commit assistance
-- `pr-review-toolkit` — PR review
-- `security-guidance` — Security guidance
+### Claude Code Plugins
 
-#### 🚀 Advanced Plugins (Optional)
+> **⚠️ Important Change (v2.2.0+)**: Official plugins are no longer installed by default. **Community plugins are recommended** as they provide enhanced features and capabilities.
 
-Starting from v2.2.0, we provide the **`claude-code-plugins` Feature**, supporting 9 advanced plugins from the community marketplace:
+#### 🚀 Recommended: Community Plugins
+
+Starting from v2.2.0, we provide the **`claude-code-plugins` Feature**, supporting 9 enhanced plugins from the community marketplace:
 
 **Installation**: Add to `.devcontainer/devcontainer.json`:
 

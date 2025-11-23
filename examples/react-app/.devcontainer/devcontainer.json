@@ -8,8 +8,10 @@
     },
     "ghcr.io/xrf9268-hue/features/claude-code:1": {
       "loginMethod": "host",
-      "bypassPermissions": true,
-      "installPlugins": "commit-commands,pr-review-toolkit"
+      "bypassPermissions": true
+    },
+    "ghcr.io/xrf9268-hue/features/claude-code-plugins:1": {
+      "installPlugins": "essential"
     }
   },
 

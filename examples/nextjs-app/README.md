@@ -38,7 +38,7 @@ code .
 ### Claude Code Integration
 - ✅ Host authentication method
 - ✅ Bypass permissions (trusted repo)
-- ✅ Plugins: commit-commands, pr-review-toolkit
+- ✅ Community plugins (essential): commit-commands, code-review, security-guidance, context-preservation
 
 ## 🏗️ Project Structure
 

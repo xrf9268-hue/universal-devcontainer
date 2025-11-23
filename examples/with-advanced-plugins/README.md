@@ -1,5 +1,7 @@
 # Example: Project with Advanced Claude Code Plugins
 
+> **⭐ Recommended Standard**: This configuration is now the **recommended best practice** for all projects using Claude Code. Community plugins provide enhanced features compared to official plugins.
+
 This example demonstrates how to use the `claude-code-plugins` dev container feature to install advanced community plugins for Claude Code.
 
 ## What's Included

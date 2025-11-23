@@ -22,8 +22,8 @@
     },
     "installPlugins": {
       "type": "string",
-      "default": "commit-commands,pr-review-toolkit,security-guidance",
-      "description": "Comma-separated list of plugins to install from claude-code-plugins marketplace"
+      "default": "",
+      "description": "Comma-separated list of plugins from official marketplace. Recommended: Use 'claude-code-plugins' feature for enhanced community plugins instead."
     },
     "enableSandbox": {
       "type": "boolean",
