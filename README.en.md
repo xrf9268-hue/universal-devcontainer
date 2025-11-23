@@ -345,6 +345,48 @@ universal-devcontainer/
 
 ---
 
+## ⚡ Performance Optimization
+
+### Using Pre-built Image (Recommended)
+
+Starting from v2.1.0, we provide **pre-built container images** for significantly faster startup.
+
+**Performance Comparison**:
+
+| Method | First Time | Subsequent |
+|--------|-----------|------------|
+| Build from Dockerfile | ~10 min | ~30 sec |
+| Pre-built image | ~1 min (pull) | ~5 sec |
+
+**Improvement**: 70% faster first-time setup, 80% faster subsequent starts
+
+**Usage**:
+
+Create `.devcontainer/devcontainer.json` in your project:
+
+```json
+{
+  "name": "My Project",
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
+  "remoteEnv": {
+    "PROJECT_PATH": "${localWorkspaceFolder}"
+  }
+}
+```
+
+**Image Tags**:
+- `latest` - Latest stable release (recommended)
+- `2.1`, `2` - Specific versions (pinned)
+- `main` - Development version (main branch)
+
+**Supported Architectures**:
+- `linux/amd64` (Intel/AMD)
+- `linux/arm64` (Apple Silicon, ARM servers)
+
+**Complete Example**: See [`examples/prebuilt-image/`](examples/prebuilt-image/)
+
+---
+
 ## Troubleshooting
 
 ### Login Troubleshooting Card (Browser Auth/localhost Callback)

@@ -319,6 +319,48 @@ universal-devcontainer/
 
 ---
 
+## ⚡ 性能优化
+
+### 使用预构建镜像（推荐）
+
+从 v2.1.0 开始，我们提供**预构建容器镜像**，可大幅提升启动速度。
+
+**性能对比**：
+
+| 方式 | 首次启动 | 后续启动 |
+|------|---------|---------|
+| 从 Dockerfile 构建 | ~10 分钟 | ~30 秒 |
+| 预构建镜像 | ~1 分钟（拉取） | ~5 秒 |
+
+**提升**: 首次启动快 70%，后续启动快 80%
+
+**使用方法**：
+
+在你的项目中创建 `.devcontainer/devcontainer.json`：
+
+```json
+{
+  "name": "My Project",
+  "image": "ghcr.io/xrf9268-hue/universal-devcontainer:latest",
+  "remoteEnv": {
+    "PROJECT_PATH": "${localWorkspaceFolder}"
+  }
+}
+```
+
+**镜像标签**：
+- `latest` - 最新稳定版（推荐）
+- `2.1`, `2` - 特定版本（固定版本）
+- `main` - 开发版本（main 分支）
+
+**支持架构**：
+- `linux/amd64` (Intel/AMD)
+- `linux/arm64` (Apple Silicon, ARM 服务器)
+
+**完整示例**: 见 [`examples/prebuilt-image/`](examples/prebuilt-image/)
+
+---
+
 ## 故障排查
 
 ### 登录故障排查卡片（浏览器授权/localhost 回调）
