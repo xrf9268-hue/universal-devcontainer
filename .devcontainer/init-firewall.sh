@@ -16,6 +16,8 @@ DEFAULT_ALLOW_DOMAINS=(
   "claude.ai"
   "api.anthropic.com"
   "console.anthropic.com"
+  "statsig.anthropic.com"
+  "sentry.io"
 )
 EXTRA="${EXTRA_ALLOW_DOMAINS:-}"
 ALLOW_DOMAINS=("${DEFAULT_ALLOW_DOMAINS[@]}")

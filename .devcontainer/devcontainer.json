@@ -47,6 +47,10 @@
     "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
     "ALL_PROXY": "${localEnv:ALL_PROXY}",
     "NO_PROXY": "${localEnv:NO_PROXY}",
+    "http_proxy": "${localEnv:HOST_PROXY_URL}",
+    "https_proxy": "${localEnv:HOST_PROXY_URL}",
+    "all_proxy": "${localEnv:ALL_PROXY}",
+    "no_proxy": "${localEnv:NO_PROXY}",
     "STRICT_PROXY_ONLY": "${localEnv:STRICT_PROXY_ONLY:1}"
   },
   "containerEnv": {
@@ -61,6 +65,10 @@
     "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
     "ALL_PROXY": "${localEnv:ALL_PROXY}",
     "NO_PROXY": "${localEnv:NO_PROXY}",
+    "http_proxy": "${localEnv:HOST_PROXY_URL}",
+    "https_proxy": "${localEnv:HOST_PROXY_URL}",
+    "all_proxy": "${localEnv:ALL_PROXY}",
+    "no_proxy": "${localEnv:NO_PROXY}",
     "STRICT_PROXY_ONLY": "${localEnv:STRICT_PROXY_ONLY:1}"
   },
   "customizations": {
